@@ -1,6 +1,8 @@
-package bgu.spl.net.impl.echo;
+package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
+import bgu.spl.net.srv.messages.Message;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -34,11 +36,11 @@ public class LineMessageEncoderDecoder implements MessageEncoderDecoder<String> 
         bytes[len++] = nextByte;
     }
 
-    private String popString() {
+    private Message popString() {
         //notice that we explicitly requesting that the string will be decoded from UTF-8
         //this is not actually required as it is the default encoding in java.
         String result = new String(bytes, 0, len, StandardCharsets.UTF_8);
         len = 0;
-        return result;
+
     }
 }
