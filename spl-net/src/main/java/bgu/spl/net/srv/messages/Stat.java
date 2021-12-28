@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Stat extends Message{
 
-    private List<String> usernames;
+    public final List<String> usernames;
 
     public Stat(List<String> usernames){
         this.usernames = usernames;

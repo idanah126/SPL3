@@ -41,9 +41,18 @@ public class User {
         return age;
     }
 
-    public boolean isValidPass(String pass){ return password.equals(pass);}
+    public boolean isValidUserAndPass(String username, String pass){
+        return password.equals(pass) & Username.equals(username);}
     public boolean isLoggedIn(){return isLoggedIn();}
     public boolean isFollowing(int connID){return following.contains(connID);}
     public LinkedList<Message> getUnnotifiedMessages(){return unnotifiedMessages;}
     public String getUserName() {return Username;}
+
+    public void LogIn() {
+        loggedIn=true;
+    }
+
+    public void logOut() {
+        loggedIn=false;
+    }
 }

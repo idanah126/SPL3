@@ -2,9 +2,9 @@ package bgu.spl.net.srv.messages;
 
 public class PM extends Message{
 
-    private String userName;
-    private String content;
-    private String dateAndTime;
+    public final String userName;
+    public final String content;
+    public final String dateAndTime;
 
     public PM(String userName, String content, String dateAndTime){
         this.userName = userName;

@@ -2,9 +2,9 @@ package bgu.spl.net.srv.messages;
 
 public class Login extends Message{
 
-    private String userName;
-    private String password;
-    private boolean captcha;
+    public final String userName;
+    public final String password;
+    public final boolean captcha;
 
     public Login(String userName, String password, boolean captcha){
         this.userName = userName;
