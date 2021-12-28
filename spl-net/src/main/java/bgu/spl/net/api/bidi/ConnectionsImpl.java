@@ -19,9 +19,11 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     @Override
     public boolean send(int connectionId, T msg) {
-        //map[conid].recieveMesange(msg);
-        //need to use connectionHandler
-        return false;
+        if (!map.containsKey(connectionId)) return false;
+        int b;
+        BlockingConnectionHandler handler = map.get(connectionId);
+        handler.send(T msg);
+        return true;
     }
 
     @Override

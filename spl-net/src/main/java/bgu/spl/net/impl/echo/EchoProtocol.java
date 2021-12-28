@@ -5,7 +5,7 @@ import bgu.spl.net.api.bidi.Connections;
 
 import java.time.LocalDateTime;
 
-public class EchoProtocol implements BidiMessagingProtocol<String> {
+//public class EchoProtocol implements BidiMessagingProtocol<String> {
 
 //    private boolean shouldTerminate = false;
 //
@@ -30,4 +30,4 @@ public class EchoProtocol implements BidiMessagingProtocol<String> {
 //    public boolean shouldTerminate() {
 //        return shouldTerminate;
 //    }
-}
+//}

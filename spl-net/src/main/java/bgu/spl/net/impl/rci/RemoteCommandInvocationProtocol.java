@@ -2,7 +2,7 @@ package bgu.spl.net.impl.rci;
 
 import java.io.Serializable;
 
-public class RemoteCommandInvocationProtocol<T> implements MessagingProtocol<Serializable> {
+//public class RemoteCommandInvocationProtocol<T> implements MessagingProtocol<Serializable> {
 //
 //    private T arg;
 //
@@ -20,4 +20,4 @@ public class RemoteCommandInvocationProtocol<T> implements MessagingProtocol<Ser
 //        return false;
 //    }
 
-}
+//}

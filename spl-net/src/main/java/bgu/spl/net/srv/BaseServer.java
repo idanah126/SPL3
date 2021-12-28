@@ -8,8 +8,6 @@ import bgu.spl.net.srv.messages.Message;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.function.Supplier;
 
 public abstract class BaseServer implements Server<Message> {
@@ -22,6 +20,7 @@ public abstract class BaseServer implements Server<Message> {
 
 
     public BaseServer(
+            Supplier<java.util.List<Integer>> a,
             int port,
             Supplier<BidiMessagingProtocol<Message>> protocolFactory,
             Supplier<MessageEncoderDecoder<Message>> encdecFactory) {
@@ -46,7 +45,7 @@ public abstract class BaseServer implements Server<Message> {
                 Socket clientSock = serverSock.accept();
 
                 BidiMessagingProtocol newProtocol = protocolFactory.get();
-                BlockingConnectionHandler<Message> handler = new BlockingConnectionHandler<>(
+                BlockingConnectionHandler handler = new BlockingConnectionHandler<Message>(
                         clientSock,
                         encdecFactory.get(),
                         newProtocol);

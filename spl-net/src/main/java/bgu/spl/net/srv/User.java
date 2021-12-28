@@ -1,6 +1,7 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.srv.messages.Message;
+import bgu.spl.net.srv.messages.PM;
 import com.sun.tools.javac.util.List;
 
 import java.time.LocalDateTime;
@@ -13,10 +14,12 @@ public class User {
     private String password;
     private boolean loggedIn;
     private int age;
-    private LinkedList<Integer> followers;
-    private LinkedList<Integer> following;
-    private int numOfPosts;
+    private LinkedList<String> followers;
+    private LinkedList<String> following;
     private LinkedList<Message> unnotifiedMessages;
+    private LinkedList<String> blockedUsers;
+    private LinkedList<String> posts;
+    private LinkedList<String> PMs;
 
     public User(String username, String password, String birthday){
         this.Username=username;
@@ -25,8 +28,10 @@ public class User {
         age= calAge(birthday);
         followers=new LinkedList<>();
         following = new LinkedList<>();
-        numOfPosts=0;
         unnotifiedMessages=new LinkedList<>();
+        blockedUsers=new LinkedList<>();
+        posts= new LinkedList<>();
+        PMs= new LinkedList<>();
     }
 
     private int calAge(String date){
@@ -44,7 +49,7 @@ public class User {
     public boolean isValidUserAndPass(String username, String pass){
         return password.equals(pass) & Username.equals(username);}
     public boolean isLoggedIn(){return isLoggedIn();}
-    public boolean isFollowing(int connID){return following.contains(connID);}
+    public boolean isFollowing(String username){return following.contains(username);}
     public LinkedList<Message> getUnnotifiedMessages(){return unnotifiedMessages;}
     public String getUserName() {return Username;}
 
@@ -54,5 +59,45 @@ public class User {
 
     public void logOut() {
         loggedIn=false;
+    }
+
+    public LinkedList<String> getFollowers() {
+        return followers;
+    }
+
+    public String getStat() {
+        return ""+age+" "+(posts.size()+ PMs.size())+" "+followers.size()+" "+following.size();
+    }
+
+    public void Block(String userName) {
+        blockedUsers.add(userName);
+    }
+
+    public boolean isBlocking(String username) {
+        return blockedUsers.contains(username);
+    }
+
+    public void unFollow(String userName) {
+        following.remove(userName);
+    }
+
+    public void removeFollower(String userName) {
+        followers.remove(userName);
+    }
+
+    public void Follow(String userName) {
+        following.add(userName);
+    }
+
+    public void addFollower(String userName) {
+        followers.add(userName);
+    }
+
+    public void addPost(String content) {
+        posts.add(content);
+    }
+
+    public void addPM(String content) {
+        PMs.add(content);
     }
 }
