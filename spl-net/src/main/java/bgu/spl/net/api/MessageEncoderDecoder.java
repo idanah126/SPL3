@@ -1,5 +1,7 @@
 package bgu.spl.net.api;
 
+import bgu.spl.net.srv.messages.Message;
+
 public interface MessageEncoderDecoder<T> {
 
     /**
@@ -9,7 +11,7 @@ public interface MessageEncoderDecoder<T> {
      * message
      * @return a message if this byte completes one or null if it doesnt.
      */
-    T decodeNextByte(byte nextByte);
+    Message decodeNextByte(byte nextByte);
 
     /**
      * encodes the given message to bytes array
