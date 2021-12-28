@@ -2,29 +2,36 @@ package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl.net.api.bidi.ConnectionsImpl;
+import bgu.spl.net.srv.messages.Message;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.function.Supplier;
 
-public abstract class BaseServer<T> implements Server<T> {
+public abstract class BaseServer implements Server<Message> {
 
     private final int port;
-    private final Supplier<BidiMessagingProtocol<T>> protocolFactory;
-    private final Supplier<MessageEncoderDecoder<T>> encdecFactory;
+    private final Supplier<BidiMessagingProtocol<Message>> protocolFactory;
+    private final Supplier<MessageEncoderDecoder<Message>> encdecFactory;
     private ServerSocket sock;
+    private ConnectionsImpl connections;
+
 
     public BaseServer(
             int port,
-            Supplier<BidiMessagingProtocol<T>> protocolFactory,
-            Supplier<MessageEncoderDecoder<T>> encdecFactory) {
+            Supplier<BidiMessagingProtocol<Message>> protocolFactory,
+            Supplier<MessageEncoderDecoder<Message>> encdecFactory) {
 
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.encdecFactory = encdecFactory;
 		this.sock = null;
     }
+
 
     @Override
     public void serve() {
@@ -38,11 +45,13 @@ public abstract class BaseServer<T> implements Server<T> {
 
                 Socket clientSock = serverSock.accept();
 
-                BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<>(
+                BidiMessagingProtocol newProtocol = protocolFactory.get();
+                BlockingConnectionHandler<Message> handler = new BlockingConnectionHandler<>(
                         clientSock,
                         encdecFactory.get(),
-                        protocolFactory.get());
-
+                        newProtocol);
+                int connid= connections.connect(handler);
+                newProtocol.start(connid, connections);
                 execute(handler);
             }
         } catch (IOException ex) {
@@ -57,6 +66,6 @@ public abstract class BaseServer<T> implements Server<T> {
 			sock.close();
     }
 
-    protected abstract void execute(BlockingConnectionHandler<T>  handler);
+    protected abstract void execute(BlockingConnectionHandler<Message>  handler);
 
 }
