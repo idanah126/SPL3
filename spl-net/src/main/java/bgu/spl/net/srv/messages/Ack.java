@@ -2,8 +2,8 @@ package bgu.spl.net.srv.messages;
 
 public class Ack extends Message{
 
-    private int messageOpcode;
-    private String optional;
+    public final int messageOpcode;
+    public final String optional;
 
     public Ack(int messageOpcode){
         this.messageOpcode = messageOpcode;

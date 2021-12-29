@@ -32,7 +32,64 @@ public class BidiObjectMessageEncoderDecoder implements MessageEncoderDecoder<Me
 
     @Override
     public byte[] encode(Message message) {
-        return (message + "\n").getBytes(); //uses utf8 by default
+        if (message.getClass() == Notification.class){
+            return encodeNotification((Notification) message);
+        }
+        else if (message.getClass() == Ack.class){
+            return encodeAck((Ack) message);
+        }
+        else if (message.getClass() == Error.class){
+            return encodeError((Error) message);
+        }
+        return null;
+    }
+
+    private byte[] encodeNotification(Notification notification) {
+        List<Byte> bytes = new LinkedList<>();
+        byte zero = 0;
+        byte end = ';';
+        short opcode = 9;
+        byte notificationType;
+        if (notification.isPublic)
+            notificationType = 1;
+        else
+            notificationType = 0;
+        byte[] opcodeByte = shortToBytes(opcode);
+        bytes.add(opcodeByte[0]); bytes.add(opcodeByte[1]); bytes.add(notificationType);
+        String postingUser = notification.postingUser;
+        byte[] postingUserBytes = postingUser.getBytes(StandardCharsets.UTF_8);
+        for (byte postingUserByte : postingUserBytes) {
+            bytes.add(postingUserByte);
+        }
+        bytes.add(zero);
+        String content = notification.content;
+        byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
+        for (byte contentByte : contentBytes) {
+            bytes.add(contentByte);
+        }
+        bytes.add(zero);
+        bytes.add(end);
+        byte[] returnBytes = new byte[bytes.size()];
+        for (int i = 0; i < returnBytes.length; i++) {
+            returnBytes[i] = bytes.get(i);
+        }
+        return returnBytes;
+    }
+
+    private byte[] encodeAck(Ack ack) {
+        List<Byte> bytes = new LinkedList<>();
+        byte zero = 0;
+        byte end = ';';
+        short opcode = 10;
+        short messageOpcode = (short) ack.messageOpcode;
+        byte[] opcodeBytes = shortToBytes(opcode);
+        byte[] messageOpcodeBytes = shortToBytes(messageOpcode);
+        bytes.add(opcodeBytes[0]); bytes.add(opcodeBytes[1]); bytes.add(messageOpcodeBytes[0]); bytes.add(messageOpcodeBytes[1]);
+
+    }
+
+    private byte[] encodeError(Error error) {
+        short opcode = 11;
     }
 
     private void pushByte(byte nextByte) {
@@ -45,7 +102,7 @@ public class BidiObjectMessageEncoderDecoder implements MessageEncoderDecoder<Me
     private Message popString() {
         //notice that we explicitly requesting that the string will be decoded from UTF-8
         //this is not actually required as it is the default encoding in java.
-        short opcode = getOpcode(this.opcode);
+        short opcode = bytesToShort(this.opcode);
         String result = new String(bytes, 0, len, StandardCharsets.UTF_8);
         len = 0;
         if (opcode == 1) {
@@ -233,9 +290,16 @@ public class BidiObjectMessageEncoderDecoder implements MessageEncoderDecoder<Me
         return new Block(username.toString());
     }
 
-    private Short getOpcode(byte[] byteArr) {
+    private Short bytesToShort(byte[] byteArr) {
         short result = (short) ((byteArr[0] & 0xff) << 8);
         result += (short) (byteArr[1] & 0xff);
         return result;
+    }
+
+    private byte[] shortToBytes(short num) {
+        byte[] bytesArr = new byte[2];
+        bytesArr[0] = (byte)((num >> 8) & 0xFF);
+        bytesArr[1] = (byte)(num & 0xFF);
+        return bytesArr;
     }
 }
