@@ -2,6 +2,7 @@ package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl.net.srv.messages.Message;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -10,20 +11,20 @@ import java.nio.channels.SocketChannel;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class NonBlockingConnectionHandler<T> implements java.io.Closeable {
+public class NonBlockingConnectionHandler<Message> implements java.io.Closeable, ConnectionHandler<Message>  {
 
     private static final int BUFFER_ALLOCATION_SIZE = 1 << 13; //8k
     private static final ConcurrentLinkedQueue<ByteBuffer> BUFFER_POOL = new ConcurrentLinkedQueue<>();
 
-    private final BidiMessagingProtocol<T> protocol;
-    private final MessageEncoderDecoder<T> encdec;
+    private final BidiMessagingProtocol<Message> protocol;
+    private final MessageEncoderDecoder<Message> encdec;
     private final Queue<ByteBuffer> writeQueue = new ConcurrentLinkedQueue<>();
     private final SocketChannel chan;
     private final Reactor reactor;
 
     public NonBlockingConnectionHandler(
-            MessageEncoderDecoder<T> reader,
-            BidiMessagingProtocol<T> protocol,
+            MessageEncoderDecoder<Message> reader,
+            BidiMessagingProtocol<Message> protocol,
             SocketChannel chan,
             Reactor reactor) {
         this.chan = chan;
@@ -47,13 +48,9 @@ public class NonBlockingConnectionHandler<T> implements java.io.Closeable {
             return () -> {
                 try {
                     while (buf.hasRemaining()) {
-                        T nextMessage = encdec.decodeNextByte(buf.get());
+                        Message nextMessage = encdec.decodeNextByte(buf.get());
                         if (nextMessage != null) {
-                            T response = protocol.process(nextMessage);
-                            if (response != null) {
-                                writeQueue.add(ByteBuffer.wrap(encdec.encode(response)));
-                                reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-                            }
+                            protocol.process(nextMessage);
                         }
                     }
                 } finally {
@@ -115,5 +112,19 @@ public class NonBlockingConnectionHandler<T> implements java.io.Closeable {
     private static void releaseBuffer(ByteBuffer buff) {
         BUFFER_POOL.add(buff);
     }
+
+    @Override
+    public void send(Message msg) {
+        ByteBuffer buf = leaseBuffer();
+        buf.flip();
+        try {
+            writeQueue.add(ByteBuffer.wrap(encdec.encode(msg)));
+            reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+            } finally {
+                releaseBuffer(buf);
+            }
+    }
+
+
 
 }

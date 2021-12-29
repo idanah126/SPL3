@@ -1,7 +1,7 @@
 package bgu.spl.net.srv;
 
-import bgu.spl.net.api.bidi.BidiLineMessageEncoderDecoder;
 import bgu.spl.net.api.bidi.BidiMessagingProtocolImpl;
+import bgu.spl.net.api.bidi.BidiObjectMessageEncoderDecoder;
 
 
 public class MessageServerMain {
@@ -11,7 +11,7 @@ public class MessageServerMain {
         Server.threadPerClient(
                 7777, //port
                 () ->new BidiMessagingProtocolImpl(), //protocol factory
-                () -> new BidiLineMessageEncoderDecoder() //message encoder decoder factory
+                () -> new BidiObjectMessageEncoderDecoder() //message encoder decoder factory
         ).serve();
 
 //        Server.reactor(

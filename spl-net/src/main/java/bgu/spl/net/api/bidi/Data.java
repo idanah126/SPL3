@@ -1,6 +1,7 @@
 package bgu.spl.net.api.bidi;
 
 import bgu.spl.net.srv.User;
+import bgu.spl.net.srv.messages.Message;
 import bgu.spl.net.srv.messages.Register;
 
 import java.awt.*;
@@ -129,6 +130,15 @@ public class Data {
         users.get(connectionID).addPM(content);
     }
 
+
+    public void addToUnotifiedList(int connId, Message msg) {
+        users.get(connId).addToUnnotifiedList(msg);
+    }
+
+
+    public LinkedList<Message> getUnnotifiedMessages(int connectionID) {
+        return users.get(connectionID).getUnnotifiedMessages();
+    }
 
 
 

@@ -100,4 +100,8 @@ public class User {
     public void addPM(String content) {
         PMs.add(content);
     }
+
+    public void addToUnnotifiedList(Message msg) {
+        unnotifiedMessages.add(msg);
+    }
 }

@@ -1,6 +1,7 @@
 package bgu.spl.net.api.bidi;
 
 import bgu.spl.net.srv.BlockingConnectionHandler;
+import bgu.spl.net.srv.ConnectionHandler;
 import bgu.spl.net.srv.NonBlockingConnectionHandler;
 
 import java.io.IOException;
@@ -13,5 +14,5 @@ public interface Connections<T> {
 
     void disconnect(int connectionId);
 
-    int connect(BlockingConnectionHandler<T> client);
+    int connect(ConnectionHandler<T> client);
 }

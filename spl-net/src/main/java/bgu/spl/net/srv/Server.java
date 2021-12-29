@@ -1,13 +1,10 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.bidi.BidiLineMessageEncoderDecoder;
 import bgu.spl.net.api.bidi.BidiMessagingProtocol;
-import bgu.spl.net.api.bidi.BidiMessagingProtocolImpl;
 import bgu.spl.net.srv.messages.Message;
 
 import java.io.Closeable;
-import java.util.LinkedList;
 import java.util.function.Supplier;
 
 public interface Server<T> extends Closeable {
@@ -29,7 +26,7 @@ public interface Server<T> extends Closeable {
             Supplier<BidiMessagingProtocol<Message>> protocolFactory,
             Supplier<MessageEncoderDecoder<Message>> encoderDecoderFactory) {
 
-        return new BaseServer(port, protocolFactory, encoderDecoderFactory) {
+        return new MessageServer(port, protocolFactory, encoderDecoderFactory) {
             @Override
             protected void execute(BlockingConnectionHandler<Message>  handler) {
                 new Thread(handler).start();

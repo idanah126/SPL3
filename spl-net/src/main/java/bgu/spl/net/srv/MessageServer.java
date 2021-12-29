@@ -10,7 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.function.Supplier;
 
-public abstract class BaseServer implements Server<Message> {
+public abstract class MessageServer implements Server<Message> {
 
     private final int port;
     private final Supplier<BidiMessagingProtocol<Message>> protocolFactory;
@@ -19,7 +19,7 @@ public abstract class BaseServer implements Server<Message> {
     private ConnectionsImpl connections;
 
 
-    public BaseServer(
+    public MessageServer(
             int port,
             Supplier<BidiMessagingProtocol<Message>> protocolFactory,
             Supplier<MessageEncoderDecoder<Message>> encdecFactory) {

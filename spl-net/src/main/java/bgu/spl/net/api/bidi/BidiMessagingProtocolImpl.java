@@ -42,55 +42,58 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     private void processRegister(Register message) {
         if (data.isRegistered(connectionID))
-            connections.send(connectionID, new Error(1));
+            send(connectionID, new Error(1));
         else{
             data.register(message, connectionID);
-            connections.send(connectionID, new Ack(1));
+            send(connectionID, new Ack(1));
         }
     }
 
     private void processLogin(Login message) {
         if (!data.isRegistered(connectionID) | !data.isUserAndPassCorrect(connectionID, message.userName, message.password)
                 | data.isLoggedIn(connectionID) | message.captcha==false)
-            connections.send(connectionID,new Error(2));
+            send(connectionID,new Error(2));
         else {
             data.login(connectionID);
-            connections.send(connectionID, new Ack(2));
+            send(connectionID, new Ack(2));
+            LinkedList<Message> unnotifiedMsg = data.getUnnotifiedMessages(connectionID);
+            for (Message msg: unnotifiedMsg)
+                send(connectionID, msg);
         }
     }
 
     private void processLogout(Logout message) {
         if (!data.isLoggedIn(connectionID))
-            connections.send(connectionID, new Error(3));
+            send(connectionID, new Error(3));
         else{
             data.logout(connectionID);
-            connections.send(connectionID, new Ack(3));
+            send(connectionID, new Ack(3));
         }
     }
 
     private void processFollow(Follow message) {
         if (message.unFollow){
             if (!data.isLoggedIn(connectionID) | data.isFollowing(connectionID, message.userName))
-                connections.send(connectionID, new Error(4));
+                send(connectionID, new Error(4));
             else {
                 data.unfollow(connectionID, message.userName);
-                connections.send(connectionID, new Ack(4, message.userName));
+                send(connectionID, new Ack(4, message.userName));
             }
         }
         else{
             if (!data.isLoggedIn(connectionID) | !data.isFollowing(connectionID, message.userName)
                     |data.isBlockedby(connectionID, message.userName))
-                connections.send(connectionID, new Error(4));
+                send(connectionID, new Error(4));
             else {
                 data.follow(connectionID, message.userName);
-                connections.send(connectionID, new Ack(4, message.userName));
+                send(connectionID, new Ack(4, message.userName));
             }
         }
     }
 
     private void processPost(Post message) {
         if (!data.isLoggedIn(connectionID))
-            connections.send(connectionID, new Error(5));
+            send(connectionID, new Error(5));
         else {
             data.post(connectionID, message.content);
             LinkedList<Integer> users = data.getFollowersId(connectionID);
@@ -103,7 +106,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 indexOfUsername = post.indexOf('@');
             }
             for (Integer connId : users) {
-                connections.send(connId, new Notification(true, data.getUsernameById(connectionID), message.content));
+                send(connId, new Notification(true, data.getUsernameById(connectionID), message.content));
             }
         }
     }
@@ -111,36 +114,36 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     private void processPM(PM message) {
         if (!data.isLoggedIn(connectionID) | !data.isRegistered(message.userName)
                 | !data.isFollowing(connectionID, message.userName))
-            connections.send(connectionID, new Error(6));
+            send(connectionID, new Error(6));
         else{
             String content = data.filter(message.content);
             data.PM(connectionID,content);
-            connections.send(data.getIdByUsername(message.userName), new Notification(false, data.getUsernameById(connectionID), content));
+            send(data.getIdByUsername(message.userName), new Notification(false, data.getUsernameById(connectionID), content));
         }
     }
 
     private void processLogstat(Logstat message) {
         if (!data.isLoggedIn(connectionID))
-            connections.send(connectionID, new Error(7));
+            send(connectionID, new Error(7));
         else {
             LinkedList<String> ans = data.getLoggedInUserStat(connectionID);
             for (String s: ans)
-                connections.send(connectionID, new Ack(7, s));
+                send(connectionID, new Ack(7, s));
         }
     }
 
     private void processStat(Stat message) {
         if (!data.isLoggedIn(connectionID))
-            connections.send(connectionID, new Error(7));
+            send(connectionID, new Error(7));
         else {
             for (String s: message.usernames){
                 if (!data.isRegistered(s) | data.isBlockedby(connectionID, s)){
-                    connections.send(connectionID, new Error(8));
+                    send(connectionID, new Error(8));
                     break;
                 }
                 else {
                     String stat = data.getStat(s);
-                    connections.send(connectionID, new Ack(8, s));
+                    send(connectionID, new Ack(8, s));
                 }
             }
         }
@@ -148,13 +151,18 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     private void processBlock(Block message) {
         if (!data.isRegistered(message.userName))
-            connections.send(connectionID, new Error(12));
+            send(connectionID, new Error(12));
         else{
             data.Block(connectionID, message.userName);
-            connections.send(connectionID, new Ack(12));
+            send(connectionID, new Ack(12));
         }
     }
 
+    private void send(int connId, Message msg){
+        if (!data.isLoggedIn(connId))
+            data.addToUnotifiedList(connId, msg);
+        else connections.send(connId, msg);
+    }
 
 
     @Override
