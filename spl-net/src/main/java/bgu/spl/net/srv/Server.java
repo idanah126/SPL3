@@ -1,6 +1,7 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
+import bgu.spl.net.api.bidi.BidiLineMessageEncoderDecoder;
 import bgu.spl.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl.net.api.bidi.BidiMessagingProtocolImpl;
 import bgu.spl.net.srv.messages.Message;
@@ -24,12 +25,11 @@ public interface Server<T> extends Closeable {
      * @return A new Thread per client server
      */
     public static Server<Message>  threadPerClient(
-            Supplier<LinkedList<Integer>> a,
             int port,
-            Supplier<BidiMessagingProtocolImpl> protocolFactory,
-            Supplier<LineMessageEncoderDecoder> encoderDecoderFactory) {
+            Supplier<BidiMessagingProtocol<Message>> protocolFactory,
+            Supplier<MessageEncoderDecoder<Message>> encoderDecoderFactory) {
 
-        return new BaseServer(a, port, protocolFactory, encoderDecoderFactory) {
+        return new BaseServer(port, protocolFactory, encoderDecoderFactory) {
             @Override
             protected void execute(BlockingConnectionHandler<Message>  handler) {
                 new Thread(handler).start();

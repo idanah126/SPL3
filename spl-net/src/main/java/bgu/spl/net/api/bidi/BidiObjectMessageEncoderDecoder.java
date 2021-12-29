@@ -1,4 +1,4 @@
-package bgu.spl.net.srv;
+package bgu.spl.net.api.bidi;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.srv.messages.Error;
@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class LineMessageEncoderDecoder implements MessageEncoderDecoder<String> {
+public class BidiObjectMessageEncoderDecoder implements MessageEncoderDecoder<Message> {
 
     private final byte[] opcode = new byte[2];
     private byte[] bytes = null;
@@ -31,7 +31,7 @@ public class LineMessageEncoderDecoder implements MessageEncoderDecoder<String> 
     }
 
     @Override
-    public byte[] encode(String message) {
+    public byte[] encode(Message message) {
         return (message + "\n").getBytes(); //uses utf8 by default
     }
 

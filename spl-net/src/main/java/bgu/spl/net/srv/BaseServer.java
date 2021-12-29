@@ -20,7 +20,6 @@ public abstract class BaseServer implements Server<Message> {
 
 
     public BaseServer(
-            Supplier<java.util.List<Integer>> a,
             int port,
             Supplier<BidiMessagingProtocol<Message>> protocolFactory,
             Supplier<MessageEncoderDecoder<Message>> encdecFactory) {

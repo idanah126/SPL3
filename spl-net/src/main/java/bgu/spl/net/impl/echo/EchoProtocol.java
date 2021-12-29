@@ -1,12 +1,12 @@
-package bgu.spl.net.impl.echo;
-
-import bgu.spl.net.api.bidi.BidiMessagingProtocol;
-import bgu.spl.net.api.bidi.Connections;
-
-import java.time.LocalDateTime;
-
+//package bgu.spl.net.impl.echo;
+//
+//import bgu.spl.net.api.bidi.BidiMessagingProtocol;
+//import bgu.spl.net.api.bidi.Connections;
+//
+//import java.time.LocalDateTime;
+//
 //public class EchoProtocol implements BidiMessagingProtocol<String> {
-
+//
 //    private boolean shouldTerminate = false;
 //
 //    @Override
