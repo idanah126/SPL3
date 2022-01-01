@@ -85,11 +85,74 @@ public class BidiObjectMessageEncoderDecoder implements MessageEncoderDecoder<Me
         byte[] opcodeBytes = shortToBytes(opcode);
         byte[] messageOpcodeBytes = shortToBytes(messageOpcode);
         bytes.add(opcodeBytes[0]); bytes.add(opcodeBytes[1]); bytes.add(messageOpcodeBytes[0]); bytes.add(messageOpcodeBytes[1]);
-
+        if (messageOpcode == 4){
+            String userName = ack.optional;
+            byte[] userNameBytes = userName.getBytes(StandardCharsets.UTF_8);
+            for (byte userNameByte : userNameBytes) {
+                bytes.add(userNameByte);
+            }
+            bytes.add(zero);
+            bytes.add(end);
+        }
+        else if (messageOpcode == 7 || messageOpcode == 8){
+            String stats = ack.optional;
+            int turn = 0;
+            short age = 0;
+            short numPosts = 0;
+            short numFollowers = 0;
+            short numFollowing = 0;
+            String temp = "";
+            for (int i = 0; i < stats.length(); i++) {
+                if (stats.charAt(i) != ' '){
+                    temp += stats.charAt(i);
+                }
+                else {
+                    if (turn == 0) {
+                        age = (short) Integer.parseInt(temp);
+                        turn += 1;
+                    }
+                    else if (turn == 1){
+                        numPosts = (short) Integer.parseInt(temp);
+                        turn += 1;
+                    }
+                    else if (turn == 2){
+                        numFollowers = (short) Integer.parseInt(temp);
+                        turn += 1;
+                    }
+                    else if (turn == 3){
+                        numFollowing = (short) Integer.parseInt(temp);
+                        turn += 1;
+                    }
+                    temp = "";
+                }
+            }
+            byte[] ageBytes = shortToBytes(age); byte[] numPostsBytes = shortToBytes(numPosts);
+            byte[] numFollowersBytes = shortToBytes(numFollowers); byte[] numFollowingBytes = shortToBytes(numFollowing);
+            bytes.add(ageBytes[0]); bytes.add(ageBytes[1]); bytes.add(numPostsBytes[0]); bytes.add(numPostsBytes[1]);
+            bytes.add(numFollowersBytes[0]); bytes.add(numFollowersBytes[1]); bytes.add(numFollowingBytes[0]); bytes.add(numFollowingBytes[1]);
+            bytes.add(end);
+        }
+        byte[] returnBytes = new byte[bytes.size()];
+        for (int i = 0; i < returnBytes.length; i++) {
+            returnBytes[i] = bytes.get(i);
+        }
+        return returnBytes;
     }
 
     private byte[] encodeError(Error error) {
+        List<Byte> bytes = new LinkedList<>();
+        byte end = ';';
         short opcode = 11;
+        short messageOpcode = (short) error.msgOpcode;
+        byte[] opcodeBytes = shortToBytes(opcode);
+        byte[] messageOpcodeBytes = shortToBytes(messageOpcode);
+        bytes.add(opcodeBytes[0]); bytes.add(opcodeBytes[1]); bytes.add(messageOpcodeBytes[0]); bytes.add(messageOpcodeBytes[1]);
+        bytes.add(end);
+        byte[] returnBytes = new byte[bytes.size()];
+        for (int i = 0; i < returnBytes.length; i++) {
+            returnBytes[i] = bytes.get(i);
+        }
+        return returnBytes;
     }
 
     private void pushByte(byte nextByte) {
