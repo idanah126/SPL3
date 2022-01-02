@@ -123,7 +123,7 @@ void ConnectionHandler::shortToBytes(short num, char* bytesArr)
 }
 
 char* ConnectionHandler::LoginToBytes(const std::string &frame){
-    char ans[5+frame.length()];
+    char ans[4+frame.length()];
     shortToBytes(2, ans);
     int frameIndex=0;
     int ArrayIndex=2;
@@ -134,19 +134,17 @@ char* ConnectionHandler::LoginToBytes(const std::string &frame){
         ans[ArrayIndex]='\0';
     }
     ans[ArrayIndex+1]='1';
-    ans[ArrayIndex+2]=';';
     return ans;
 }
 
 char* ConnectionHandler::LogoutToBytes(){
-    char ans[3];
+    char ans[2];
     shortToBytes(3, ans);
-    ans[2]=';';
     return ans;
 }
 
 char* ConnectionHandler::UnFollowToBytes(const std::string &frame){
-    char ans[3+frame.length()];
+    char ans[2+frame.length()];
     shortToBytes(4, ans);
     int frameIndex=0;
     int ArrayIndex=2;
@@ -156,23 +154,21 @@ char* ConnectionHandler::UnFollowToBytes(const std::string &frame){
             ans[ArrayIndex]=frame[frameIndex];
         ans[ArrayIndex]='\0';
     }
-    ans[ArrayIndex+1]=';';
     return ans;
 }
 
 char* ConnectionHandler::PostToBytes(const std::string &frame){
-    char ans[4+frame.length()];
+    char ans[3+frame.length()];
     shortToBytes(5, ans);
     int i=0;
     for (; i<frame.length(); i++)
         ans[i+2]=frame[i];
     ans[i]='\0';
-    ans[i+1]=';';
     return ans;
 }
 
 char* ConnectionHandler::PMToBytes(const std::string &frame){
-    char ans[19+frame.length()];
+    char ans[20+frame.length()];
     shortToBytes(6, ans);
     int frameIndex=0;
     int ArrayIndex=2;
@@ -214,8 +210,7 @@ char* ConnectionHandler::PMToBytes(const std::string &frame){
     {ans[ArrayIndex++]='0'; ans[ArrayIndex++]=minutes;}
     else
     {ans[ArrayIndex++]=(minutes/10); ans[ArrayIndex++]=(minutes%10);}
-    ans[ArrayIndex++]='\0';
-    ans[ArrayIndex]=';';
+    ans[ArrayIndex]='\0';
     return ans;
 }
 
