@@ -51,7 +51,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     private void processLogin(Login message) {
         if (!data.isRegistered(connectionID) | !data.isUserAndPassCorrect(connectionID, message.userName, message.password)
-                | data.isLoggedIn(connectionID) | message.captcha==false)
+                | data.isLoggedIn(connectionID) | !message.captcha)
             send(connectionID,new Error(2));
         else {
             data.login(connectionID);
@@ -143,7 +143,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 }
                 else {
                     String stat = data.getStat(s);
-                    send(connectionID, new Ack(8, s));
+                    send(connectionID, new Ack(8, stat));
                 }
             }
         }
