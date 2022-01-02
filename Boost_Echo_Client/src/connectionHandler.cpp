@@ -230,11 +230,16 @@ std::string &ConnectionHandler::getMessage(char *bytes) {
     char opcode[2];
     opcode[0]=bytes[0];
     opcode[1]=bytes[1];
-    short result = (short)((opcode[0] & 0xff) << 8);
-    result += (short)(opcode[1] & 0xff);
+    short result = bytesToShort(opcode);
     if (result==9) getNotification(bytes);
     if (result==10) getAck(bytes);
     if (result==11) getError(bytes);
+}
+short ConnectionHandler::bytesToShort(char* bytesArr)
+{
+    short result = (short)((bytesArr[0] & 0xff) << 8);
+    result += (short)(bytesArr[1] & 0xff);
+    return result;
 }
 
 void ConnectionHandler::getNotification(char *bytes) {

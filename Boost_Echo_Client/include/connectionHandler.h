@@ -24,6 +24,7 @@ private:
     char* BlockToBytes(const std::string &frame);
     char* StatToBytes(const std::string &frame);
     void shortToBytes(short num, char* bytesArr);
+    short bytesToShort(char *bytesArr);
 
     char *insertIntoArray(char *array, int index, char c);
 
@@ -70,6 +71,7 @@ public:
     void getAck(char *bytes);
 
     void getError(char *bytes);
+
 }; //class ConnectionHandler
  
 #endif
