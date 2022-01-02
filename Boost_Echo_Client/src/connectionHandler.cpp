@@ -82,7 +82,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
 			getBytes(&ch, 1);
             bytes= insertIntoArray(bytes,index++, ch);
         }while (delimiter != ch);
-        frame= getMessage(bytes);
+        frame= getMessage(bytes, index);
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         return false;
@@ -226,14 +226,14 @@ char* ConnectionHandler::PMToBytes(const std::string &frame){
     return ans;
 }
 
-std::string &ConnectionHandler::getMessage(char *bytes) {
+std::string &ConnectionHandler::getMessage(char *bytes, int len) {
     char opcode[2];
     opcode[0]=bytes[0];
     opcode[1]=bytes[1];
     short result = bytesToShort(opcode);
-    if (result==9) getNotification(bytes);
-    if (result==10) getAck(bytes);
-    if (result==11) getError(bytes);
+    if (result==9) getNotification(bytes, len);
+    if (result==10) getAck(bytes, len);
+    if (result==11) getError(bytes, len);
 }
 short ConnectionHandler::bytesToShort(char* bytesArr)
 {
@@ -242,15 +242,37 @@ short ConnectionHandler::bytesToShort(char* bytesArr)
     return result;
 }
 
-void ConnectionHandler::getNotification(char *bytes) {
-
+void ConnectionHandler::getNotification(char *bytes, int len) {
+    char messageOpcode[1];
+    messageOpcode[0]=bytes[2];
+    short mo= bytesToShort(messageOpcode);
+    std::string ans="";
+    if (mo==0) ans="PM";
+    else ans="Public";
+    for(int i=3; i<len; i++) {
+        if (bytes[i] == '\0') ans = ans + " ";
+        else ans = ans + bytes[i];
+    }
+    std::cout<<"ACK "+mo+ans.substr(0, ans.length()-2)<<std::endl;
 }
 
-void ConnectionHandler::getAck(char *bytes) {
-
+void ConnectionHandler::getAck(char *bytes, int len) {
+    char messageOpcode[2];
+    messageOpcode[0]=bytes[2];
+    messageOpcode[1]=bytes[3];
+    short mo= bytesToShort(messageOpcode);
+    std::string ans="";
+    for(int i=4; i<len; i++)
+        ans=ans+bytes[i];
+    std::cout<<"ACK "+mo+ans.substr(0, ans.length()-1)<<std::endl;
 }
 
-void ConnectionHandler::getError(char *bytes) {
+void ConnectionHandler::getError(char *bytes, int len) {
+    char messageOpcode[2];
+    messageOpcode[0]=bytes[2];
+    messageOpcode[1]=bytes[3];
+    short mo= bytesToShort(messageOpcode);
+    std::cout<<"ERROR "+mo<<std::endl;
 
 }
 

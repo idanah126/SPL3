@@ -64,13 +64,13 @@ public:
     // Close down the connection properly.
     void close();
 
-    std::string &getMessage(char *bytes);
+    std::string &getMessage(char *bytes, int index);
 
-    void getNotification(char *bytes);
+    void getNotification(char *bytes, int index);
 
-    void getAck(char *bytes);
+    void getAck(char *bytes, int index);
 
-    void getError(char *bytes);
+    void getError(char *bytes, int index);
 
 }; //class ConnectionHandler
  
