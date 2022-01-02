@@ -21,8 +21,12 @@ private:
     char* PostToBytes(const std::string &frame);
     char* PMToBytes(const std::string &frame);
     char* LogstatToBytes();
+    char* BlockToBytes(const std::string &frame);
     char* StatToBytes(const std::string &frame);
     void shortToBytes(short num, char* bytesArr);
+
+    char *insertIntoArray(char *array, int index, char c);
+
 
 
 public:
@@ -59,6 +63,13 @@ public:
     // Close down the connection properly.
     void close();
 
+    std::string &getMessage(char *bytes);
+
+    void getNotification(char *bytes);
+
+    void getAck(char *bytes);
+
+    void getError(char *bytes);
 }; //class ConnectionHandler
  
 #endif

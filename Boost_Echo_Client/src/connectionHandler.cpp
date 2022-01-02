@@ -73,18 +73,30 @@ bool ConnectionHandler::sendLine(std::string& line) {
  
 bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     char ch;
+    char *bytes= new char[30];
+    int index=0;
     // Stop when we encounter the null character. 
     // Notice that the null character is not appended to the frame string.
     try {
 		do{
 			getBytes(&ch, 1);
-            frame.append(1, ch);
+            bytes= insertIntoArray(bytes,index++, ch);
         }while (delimiter != ch);
+        frame= getMessage(bytes);
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         return false;
     }
     return true;
+}
+
+char* ConnectionHandler::insertIntoArray(char array[], int index, char c){
+    char ans[2*sizeof array];
+    if(index>=sizeof(array))
+        std::copy(array[0], array[sizeof array-1], ans);
+    ans[index]=c;
+    delete(array);
+    return ans;
 }
  
 bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter) {
@@ -113,7 +125,7 @@ char* ConnectionHandler::toBytes(const std::string &line) {
     if (line.substr(0, index) == "PM") return PMToBytes(line.substr(index+2));
     if (line.substr(0, index) == "LOGSTAT") return LogstatToBytes();
     if (line.substr(0, index) == "STAT") return StatToBytes(line.substr(index+2));
-    else return nullptr;
+    return BlockToBytes(line.substr(index+2));
 }
 
 void ConnectionHandler::shortToBytes(short num, char* bytesArr)
@@ -214,6 +226,28 @@ char* ConnectionHandler::PMToBytes(const std::string &frame){
     return ans;
 }
 
+std::string &ConnectionHandler::getMessage(char *bytes) {
+    char opcode[2];
+    opcode[0]=bytes[0];
+    opcode[1]=bytes[1];
+    short result = (short)((opcode[0] & 0xff) << 8);
+    result += (short)(opcode[1] & 0xff);
+    if (result==9) getNotification(bytes);
+    if (result==10) getAck(bytes);
+    if (result==11) getError(bytes);
+}
+
+void ConnectionHandler::getNotification(char *bytes) {
+
+}
+
+void ConnectionHandler::getAck(char *bytes) {
+
+}
+
+void ConnectionHandler::getError(char *bytes) {
+
+}
 
 
 
