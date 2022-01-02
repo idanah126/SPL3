@@ -64,11 +64,11 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
 }
  
 bool ConnectionHandler::getLine(std::string& line) {
-    return getFrameAscii(line, '\n');
+    return getFrameAscii(line, ';');
 }
 
 bool ConnectionHandler::sendLine(std::string& line) {
-    return sendFrameAscii(line, '\n');
+    return sendFrameAscii(line, ';');
 }
  
 bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
@@ -88,8 +88,8 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
 }
  
 bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter) {
-    char bytes[] = toBytes(frame);
-	bool result = sendBytes(bytes,frame.length());
+    char *bytes = toBytes(frame);
+    bool result = sendBytes(bytes, sizeof(bytes));
 	if(!result) return false;
 	return sendBytes(&delimiter,1);
 }
@@ -103,15 +103,125 @@ void ConnectionHandler::close() {
     }
 }
 
-char ConnectionHandler::toBytes(const std::string &line) {
-    std::string message;
-    int i = 0;
-    while(line[i] != ' '){
-        message += line[i];
-        i += 1;
-    }
-    line = line.substr(message.size());
-    if (message == "REGISTER"){
-
-    }
+char* ConnectionHandler::toBytes(const std::string &line) {
+    int index = line.find(" ");
+    if (line.substr(0, index) == "REGISTER") return RegisterToBytes(line.substr(index+2));
+    if (line.substr(0, index) == "LOGIN") return LoginToBytes(line.substr(index+2));
+    if (line.substr(0, index) == "LOGOUT") return LogoutToBytes();
+    if (line.substr(0, index) == "FOLLOW") return UnFollowToBytes(line.substr(index+2));
+    if (line.substr(0, index) == "POST") return PostToBytes(line.substr(index+2));
+    if (line.substr(0, index) == "PM") return PMToBytes(line.substr(index+2));
+    if (line.substr(0, index) == "LOGSTAT") return LogstatToBytes();
+    if (line.substr(0, index) == "STAT") return StatToBytes(line.substr(index+2));
+    else return nullptr;
 }
+
+void ConnectionHandler::shortToBytes(short num, char* bytesArr)
+{
+    bytesArr[0] = ((num >> 8) & 0xFF);
+    bytesArr[1] = (num & 0xFF);
+}
+
+char* ConnectionHandler::LoginToBytes(const std::string &frame){
+    char ans[5+frame.length()];
+    shortToBytes(2, ans);
+    int frameIndex=0;
+    int ArrayIndex=2;
+    while (frameIndex!=frame.length()){
+        int index = frame.find(" ");
+        for (; frameIndex<index; frameIndex++, ArrayIndex++)
+            ans[ArrayIndex]=frame[frameIndex];
+        ans[ArrayIndex]='\0';
+    }
+    ans[ArrayIndex+1]='1';
+    ans[ArrayIndex+2]=';';
+    return ans;
+}
+
+char* ConnectionHandler::LogoutToBytes(){
+    char ans[3];
+    shortToBytes(3, ans);
+    ans[2]=';';
+    return ans;
+}
+
+char* ConnectionHandler::UnFollowToBytes(const std::string &frame){
+    char ans[3+frame.length()];
+    shortToBytes(4, ans);
+    int frameIndex=0;
+    int ArrayIndex=2;
+    while (frameIndex!=frame.length()){
+        int index = frame.find(" ");
+        for (; frameIndex<index; frameIndex++, ArrayIndex++)
+            ans[ArrayIndex]=frame[frameIndex];
+        ans[ArrayIndex]='\0';
+    }
+    ans[ArrayIndex+1]=';';
+    return ans;
+}
+
+char* ConnectionHandler::PostToBytes(const std::string &frame){
+    char ans[4+frame.length()];
+    shortToBytes(5, ans);
+    int i=0;
+    for (; i<frame.length(); i++)
+        ans[i+2]=frame[i];
+    ans[i]='\0';
+    ans[i+1]=';';
+    return ans;
+}
+
+char* ConnectionHandler::PMToBytes(const std::string &frame){
+    char ans[19+frame.length()];
+    shortToBytes(6, ans);
+    int frameIndex=0;
+    int ArrayIndex=2;
+    while (frameIndex!=frame.length()){
+        int index = frame.find(" ");
+        for (; frameIndex<index; frameIndex++, ArrayIndex++)
+            ans[ArrayIndex]=frame[frameIndex];
+        ans[ArrayIndex]='\0';
+    }
+    time_t now= time(0);
+    tm *ltm= localtime(&now);
+    int day = ltm->tm_mday;
+    ArrayIndex++;
+    if (day<10)
+        {ans[ArrayIndex++]='0'; ans[ArrayIndex++]=day;}
+    else
+        {ans[ArrayIndex++]=(day/10); ans[ArrayIndex++]=(day%10);}
+    ans[ArrayIndex++]='-';
+    int month= ltm->tm_mon;
+    if(month<10)
+    {ans[ArrayIndex++]='0'; ans[ArrayIndex++]=month;}
+    else
+    {ans[ArrayIndex++]=(month/10); ans[ArrayIndex++]=(month%10);}
+    ans[ArrayIndex++]='-';
+    int year= 1900+ltm->tm_year;
+    ans[ArrayIndex++]=year/1000;
+    ans[ArrayIndex++]=(year/100)%10;
+    ans[ArrayIndex++]=(year/10)%10;
+    ans[ArrayIndex++]= year%10;
+    ans[ArrayIndex++]=' ';
+    int hour= ltm->tm_hour;
+    if(hour<10)
+    {ans[ArrayIndex++]='0'; ans[ArrayIndex++]=hour;}
+    else
+    {ans[ArrayIndex++]=(hour/10); ans[ArrayIndex++]=(hour%10);}
+    ans[ArrayIndex++]=':';
+    int minutes= ltm->tm_min;
+    if(minutes<10)
+    {ans[ArrayIndex++]='0'; ans[ArrayIndex++]=minutes;}
+    else
+    {ans[ArrayIndex++]=(minutes/10); ans[ArrayIndex++]=(minutes%10);}
+    ans[ArrayIndex++]='\0';
+    ans[ArrayIndex]=';';
+    return ans;
+}
+
+
+
+
+
+
+

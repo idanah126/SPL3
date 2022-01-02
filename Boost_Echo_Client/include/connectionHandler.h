@@ -13,7 +13,16 @@ private:
 	const short port_;
 	boost::asio::io_service io_service_;   // Provides core I/O functionality
 	tcp::socket socket_;
-    char toBytes(const std::string &line);
+    char* toBytes(const std::string &line);
+    char* RegisterToBytes(const std::string &frame);
+    char* LoginToBytes(const std::string &frame);
+    char* LogoutToBytes();
+    char* UnFollowToBytes(const std::string &frame);
+    char* PostToBytes(const std::string &frame);
+    char* PMToBytes(const std::string &frame);
+    char* LogstatToBytes();
+    char* StatToBytes(const std::string &frame);
+    void shortToBytes(short num, char* bytesArr);
 
 
 public:
