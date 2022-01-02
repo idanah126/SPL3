@@ -1,5 +1,15 @@
 "C:\Program Files\JetBrains\CLion 2021.1.1\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEPENDS_USE_COMPILER=FALSE -G "CodeBlocks - NMake Makefiles" C:\Users\idana\IdeaProjects\SPL3\Boost_Echo_Client
 -- Could NOT find Boost (missing: Boost_INCLUDE_DIR) 
+CMake Warning (dev) at C:/Program Files/JetBrains/CLion 2021.1.1/bin/cmake/win/share/cmake-3.20/Modules/FindPackageHandleStandardArgs.cmake:438 (message):
+  The package name passed to `find_package_handle_standard_args` (Boost) does
+  not match the name of the calling package (boost).  This can lead to
+  problems in calling code that expects `find_package` result variables
+  (e.g., `_FOUND`) to follow a certain pattern.
+Call Stack (most recent call first):
+  C:/Program Files/JetBrains/CLion 2021.1.1/bin/cmake/win/share/cmake-3.20/Modules/FindBoost.cmake:2344 (find_package_handle_standard_args)
+  CMakeLists.txt:15 (find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
 -- Configuring done
 -- Generating done
 -- Build files have been written to: C:/Users/idana/IdeaProjects/SPL3/Boost_Echo_Client/cmake-build-debug

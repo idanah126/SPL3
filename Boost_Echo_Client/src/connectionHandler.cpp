@@ -88,7 +88,8 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
 }
  
 bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter) {
-	bool result=sendBytes(frame.c_str(),frame.length());
+    char bytes[] = toBytes(frame);
+	bool result = sendBytes(bytes,frame.length());
 	if(!result) return false;
 	return sendBytes(&delimiter,1);
 }
@@ -99,5 +100,18 @@ void ConnectionHandler::close() {
         socket_.close();
     } catch (...) {
         std::cout << "closing failed: connection already closed" << std::endl;
+    }
+}
+
+char ConnectionHandler::toBytes(const std::string &line) {
+    std::string message;
+    int i = 0;
+    while(line[i] != ' '){
+        message += line[i];
+        i += 1;
+    }
+    line = line.substr(message.size());
+    if (message == "REGISTER"){
+
     }
 }

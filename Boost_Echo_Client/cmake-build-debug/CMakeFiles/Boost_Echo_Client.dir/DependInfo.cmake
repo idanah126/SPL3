@@ -16,6 +16,7 @@ set(CMAKE_CXX_COMPILER_ID "MSVC")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
+  "C:/cygwin64/usr/include"
   )
 
 # The set of dependency files which are needed:
