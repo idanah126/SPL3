@@ -10,19 +10,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.function.Supplier;
 
-public abstract class MessageServer implements Server<Message> {
+public abstract class MessageServer<T> implements Server<T> {
 
     private final int port;
-    private final Supplier<BidiMessagingProtocol<Message>> protocolFactory;
-    private final Supplier<MessageEncoderDecoder<Message>> encdecFactory;
+    private final Supplier<BidiMessagingProtocol<T>> protocolFactory;
+    private final Supplier<MessageEncoderDecoder<T>> encdecFactory;
     private ServerSocket sock;
     private ConnectionsImpl connections;
 
 
     public MessageServer(
             int port,
-            Supplier<BidiMessagingProtocol<Message>> protocolFactory,
-            Supplier<MessageEncoderDecoder<Message>> encdecFactory) {
+            Supplier<BidiMessagingProtocol<T>> protocolFactory,
+            Supplier<MessageEncoderDecoder<T>> encdecFactory) {
 
         this.port = port;
         this.protocolFactory = protocolFactory;
@@ -44,7 +44,7 @@ public abstract class MessageServer implements Server<Message> {
                 Socket clientSock = serverSock.accept();
 
                 BidiMessagingProtocol newProtocol = protocolFactory.get();
-                BlockingConnectionHandler handler = new BlockingConnectionHandler<Message>(
+                BlockingConnectionHandler handler = new BlockingConnectionHandler<T>(
                         clientSock,
                         encdecFactory.get(),
                         newProtocol);
@@ -64,6 +64,6 @@ public abstract class MessageServer implements Server<Message> {
 			sock.close();
     }
 
-    protected abstract void execute(BlockingConnectionHandler<Message>  handler);
+    protected abstract void execute(BlockingConnectionHandler<T>  handler);
 
 }

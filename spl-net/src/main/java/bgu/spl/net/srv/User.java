@@ -71,6 +71,7 @@ public class User {
 
     public void Block(String userName) {
         blockedUsers.add(userName);
+        unFollow(userName); removeFollower(userName);
     }
 
     public boolean isBlocking(String username) {
