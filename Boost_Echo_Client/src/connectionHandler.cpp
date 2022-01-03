@@ -75,7 +75,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     char ch;
     char *bytes= new char[30];
     int index=0;
-    // Stop when we encounter the null character. 
+    // Stop when we encounter the null character.
     // Notice that the null character is not appended to the frame string.
     try {
 		do{
@@ -98,7 +98,7 @@ char* ConnectionHandler::insertIntoArray(char array[], int index, char c){
     delete(array);
     return ans;
 }
- 
+
 bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter) {
     char *bytes = toBytes(frame);
     bool result = sendBytes(bytes, sizeof(bytes));
@@ -276,6 +276,45 @@ void ConnectionHandler::getError(char *bytes, int len) {
 
 }
 
+char *ConnectionHandler::RegisterToBytes(const string &frame) {
+    char ans[3 + frame.length()];
+    shortToBytes(2, ans);
+    int frameIndex = 0;
+    int ArrayIndex = 2;
+    while (frameIndex != frame.length()){
+        int index = frame.find(" ", frameIndex);
+        for (; frameIndex < index; frameIndex++, ArrayIndex++)
+            ans[ArrayIndex] = frame[frameIndex];
+        ans[ArrayIndex] = '\0';
+    }
+    return ans;
+}
+
+char *ConnectionHandler::LogstatToBytes() {
+    char ans[2];
+    shortToBytes(7, ans);
+    return ans;
+}
+
+char *ConnectionHandler::StatToBytes(const string &frame) {
+    char ans[frame.length() + 3];
+    shortToBytes(8, ans);
+    int frameIndex = 0;
+    int ArrayIndex = 2;
+    std::string temp = frame;
+    for (int i = 0; i < temp.length(); i++) {
+        if (temp[i] == ' '){
+            temp[i] = '|';
+        }
+    }
+    while (frameIndex != temp.length()){
+        int index = temp.find(" ");
+        for (; frameIndex < index; frameIndex++, ArrayIndex++)
+            ans[ArrayIndex] = temp[frameIndex];
+        ans[ArrayIndex] = '\0';
+    }
+    return ans;
+}
 
 
 
