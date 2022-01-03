@@ -22,6 +22,8 @@ public class Data {
         userIDs=new HashMap<>();
         users=new HashMap<>();
         filteredWords= new LinkedList<>();
+        filteredWords.add("Idan");
+        filteredWords.add("Mor");
     }
 
     public static Data getData(){
