@@ -129,6 +129,30 @@ Boost_Echo_Client/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/build
 .PHONY : Boost_Echo_Client/fast
 
+include/listenerThread.o: include/listenerThread.cpp.o
+.PHONY : include/listenerThread.o
+
+# target to build an object file
+include/listenerThread.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/include/listenerThread.cpp.o
+.PHONY : include/listenerThread.cpp.o
+
+include/listenerThread.i: include/listenerThread.cpp.i
+.PHONY : include/listenerThread.i
+
+# target to preprocess a source file
+include/listenerThread.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/include/listenerThread.cpp.i
+.PHONY : include/listenerThread.cpp.i
+
+include/listenerThread.s: include/listenerThread.cpp.s
+.PHONY : include/listenerThread.s
+
+# target to generate assembly for a file
+include/listenerThread.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/include/listenerThread.cpp.s
+.PHONY : include/listenerThread.cpp.s
+
 src/connectionHandler.o: src/connectionHandler.cpp.o
 .PHONY : src/connectionHandler.o
 
@@ -210,6 +234,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... Boost_Echo_Client"
+	@echo "... include/listenerThread.o"
+	@echo "... include/listenerThread.i"
+	@echo "... include/listenerThread.s"
 	@echo "... src/connectionHandler.o"
 	@echo "... src/connectionHandler.i"
 	@echo "... src/connectionHandler.s"

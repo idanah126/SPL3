@@ -63,15 +63,15 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     return true;
 }
  
-bool ConnectionHandler::getLine(std::string& line) {
-    return getFrameAscii(line, ';');
+bool ConnectionHandler::getLine() {
+    return getFrameAscii(';');
 }
 
 bool ConnectionHandler::sendLine(std::string& line) {
     return sendFrameAscii(line, ';');
 }
  
-bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
+bool ConnectionHandler::getFrameAscii(char delimiter) {
     char ch;
     char *bytes= new char[30];
     int index=0;
@@ -82,7 +82,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
 			getBytes(&ch, 1);
             bytes= insertIntoArray(bytes,index++, ch);
         }while (delimiter != ch);
-        frame= getMessage(bytes, index);
+        getMessage(bytes, index);
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         return false;
@@ -133,6 +133,21 @@ void ConnectionHandler::shortToBytes(short num, char* bytesArr)
     bytesArr[0] = ((num >> 8) & 0xFF);
     bytesArr[1] = (num & 0xFF);
 }
+
+char *ConnectionHandler::RegisterToBytes(const string &frame) {
+    char ans[3 + frame.length()];
+    shortToBytes(2, ans);
+    int frameIndex = 0;
+    int ArrayIndex = 2;
+    while (frameIndex != frame.length()){
+        int index = frame.find(" ", frameIndex);
+        for (; frameIndex < index; frameIndex++, ArrayIndex++)
+            ans[ArrayIndex] = frame[frameIndex];
+        ans[ArrayIndex] = '\0';
+    }
+    return ans;
+}
+
 
 char* ConnectionHandler::LoginToBytes(const std::string &frame){
     char ans[4+frame.length()];
@@ -226,7 +241,44 @@ char* ConnectionHandler::PMToBytes(const std::string &frame){
     return ans;
 }
 
-std::string &ConnectionHandler::getMessage(char *bytes, int len) {
+char *ConnectionHandler::LogstatToBytes() {
+    char ans[2];
+    shortToBytes(7, ans);
+    return ans;
+}
+
+char *ConnectionHandler::StatToBytes(const string &frame) {
+    char ans[frame.length() + 3];
+    shortToBytes(8, ans);
+    int frameIndex = 0;
+    int ArrayIndex = 2;
+    std::string temp = frame;
+    for (int i = 0; i < temp.length(); i++) {
+        if (temp[i] == ' '){
+            temp[i] = '|';
+        }
+    }
+    while (frameIndex != temp.length()){
+        int index = temp.find(" ");
+        for (; frameIndex < index; frameIndex++, ArrayIndex++)
+            ans[ArrayIndex] = temp[frameIndex];
+        ans[ArrayIndex] = '\0';
+    }
+    return ans;
+}
+
+char* ConnectionHandler::BlockToBytes(const std::string &frame){
+    char ans[3+frame.length()];
+    shortToBytes(12, ans);
+    int i=0;
+    for (; i<frame.length(); i++)
+        ans[i+2]=frame[i];
+    ans[i]='\0';
+    return ans;
+}
+
+
+void ConnectionHandler::getMessage(char *bytes, int len) {
     char opcode[2];
     opcode[0]=bytes[0];
     opcode[1]=bytes[1];
@@ -265,6 +317,8 @@ void ConnectionHandler::getAck(char *bytes, int len) {
     for(int i=4; i<len; i++)
         ans=ans+bytes[i];
     std::cout<<"ACK "+mo+ans.substr(0, ans.length()-1)<<std::endl;
+    if (mo==3)
+        std::terminate();
 }
 
 void ConnectionHandler::getError(char *bytes, int len) {
