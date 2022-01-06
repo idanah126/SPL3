@@ -13,20 +13,22 @@ private:
 	const short port_;
 	boost::asio::io_service io_service_;   // Provides core I/O functionality
 	tcp::socket socket_;
-    char* toBytes(const std::string &line);
-    char* RegisterToBytes(const std::string &frame);
-    char* LoginToBytes(const std::string &frame);
-    char* LogoutToBytes();
-    char* UnFollowToBytes(const std::string &frame);
-    char* PostToBytes(const std::string &frame);
-    char* PMToBytes(const std::string &frame);
-    char* LogstatToBytes();
-    char* BlockToBytes(const std::string &frame);
-    char* StatToBytes(const std::string &frame);
+    std::pair<char*, int> toBytes(const std::string &line);
+    std::pair<char*, int> RegisterToBytes(const std::string &frame);
+    std::pair<char*, int> LoginToBytes(const std::string &frame);
+    std::pair<char*, int> LogoutToBytes();
+    std::pair<char*, int> UnFollowToBytes(const std::string &frame);
+    std::pair<char*, int> PostToBytes(const std::string &frame);
+    std::pair<char*, int> PMToBytes(const std::string &frame);
+    std::pair<char*, int> LogstatToBytes();
+    std::pair<char*, int> BlockToBytes(const std::string &frame);
+    std::pair<char*, int> StatToBytes(const std::string &frame);
     void shortToBytes(short num, char* bytesArr);
     short bytesToShort(char *bytesArr);
 
-    char *insertIntoArray(char *array, int index, char c);
+    void copy(char* dest, char* copy, int len);
+
+    char *insertIntoArray(char *array, int index, int len, char c);
 
 
 
@@ -64,13 +66,13 @@ public:
     // Close down the connection properly.
     void close();
 
-    void getMessage(char *bytes, int index);
+    bool getMessage(char *bytes, int index);
 
-    void getNotification(char *bytes, int index);
+    bool getNotification(char *bytes, int index);
 
-    void getAck(char *bytes, int index);
+    bool getAck(char *bytes, int index);
 
-    void getError(char *bytes, int index);
+    bool getError(char *bytes, int index);
 
 }; //class ConnectionHandler
  

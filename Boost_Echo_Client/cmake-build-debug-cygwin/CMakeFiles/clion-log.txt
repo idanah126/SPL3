@@ -1,4 +1,1 @@
-C:\Users\morab\AppData\Local\JetBrains\CLion2021.2\cygwin_cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEPENDS_USE_COMPILER=FALSE -G "CodeBlocks - Unix Makefiles" "/cygdrive/c/Users/morab/OneDrive/Desktop/works/spl/ass 3/SPL3/Boost_Echo_Client"
--- Configuring done
--- Generating done
--- Build files have been written to: /cygdrive/c/Users/morab/OneDrive/Desktop/works/spl/ass 3/SPL3/Boost_Echo_Client/cmake-build-debug-cygwin
+Toolchain 'Cygwin' is not found Configure Disable profile

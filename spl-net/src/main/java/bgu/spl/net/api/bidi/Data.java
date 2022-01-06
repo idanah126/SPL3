@@ -6,7 +6,6 @@ import bgu.spl.net.srv.ConnectionHandler;
 import bgu.spl.net.srv.User;
 import bgu.spl.net.srv.messages.Message;
 import bgu.spl.net.srv.messages.Register;
-import com.sun.source.tree.EmptyStatementTree;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -38,7 +37,7 @@ public class Data {
     public Boolean isRegistered(int index){
         return users.containsKey(index);
     }
-    public Boolean isRegistered(String username){ return isRegistered(userIDs.get(username));}
+    public Boolean isRegistered(String username){ return userIDs.containsKey(username);}
 
     public void register(Register message, int connId) {
         User u = new User(message.userName, message.password, message.birthday);
@@ -51,6 +50,7 @@ public class Data {
         {  return users.get(index).isValidUserAndPass(userName, password); }
     }
     public boolean isLoggedIn(int index) {
+        if (!users.containsKey(index)) return false;
         synchronized (users.get(index))
         { return users.get(index).isLoggedIn(); }
     }

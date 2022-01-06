@@ -92,7 +92,6 @@ public class BidiObjectMessageEncoderDecoder implements MessageEncoderDecoder<Me
                 bytes.add(userNameByte);
             }
             bytes.add(zero);
-            bytes.add(end);
         }
         else if (messageOpcode == 7 || messageOpcode == 8){
             String stats = ack.optional;
@@ -130,8 +129,8 @@ public class BidiObjectMessageEncoderDecoder implements MessageEncoderDecoder<Me
             byte[] numFollowersBytes = shortToBytes(numFollowers); byte[] numFollowingBytes = shortToBytes(numFollowing);
             bytes.add(ageBytes[0]); bytes.add(ageBytes[1]); bytes.add(numPostsBytes[0]); bytes.add(numPostsBytes[1]);
             bytes.add(numFollowersBytes[0]); bytes.add(numFollowersBytes[1]); bytes.add(numFollowingBytes[0]); bytes.add(numFollowingBytes[1]);
-            bytes.add(end);
         }
+        bytes.add(end);
         byte[] returnBytes = new byte[bytes.size()];
         for (int i = 0; i < returnBytes.length; i++) {
             returnBytes[i] = bytes.get(i);
@@ -157,7 +156,7 @@ public class BidiObjectMessageEncoderDecoder implements MessageEncoderDecoder<Me
 
     private void pushByte(byte nextByte) {
         if (len >= bytes.length) {
-            bytes = Arrays.copyOf(bytes, len * 2);
+            bytes = Arrays.copyOf(bytes, (len+1) * 2);
         }
         bytes[len++] = nextByte;
     }
@@ -167,7 +166,8 @@ public class BidiObjectMessageEncoderDecoder implements MessageEncoderDecoder<Me
         //this is not actually required as it is the default encoding in java.
         short opcode = bytesToShort(this.opcode);
         String result = new String(bytes, 0, len, StandardCharsets.UTF_8);
-        len = 0;
+        len = 0; opPlace = 0;
+        bytes= null;
         if (opcode == 1) {
             return buildRegister(result);
         } else if (opcode == 2) {
@@ -245,12 +245,7 @@ public class BidiObjectMessageEncoderDecoder implements MessageEncoderDecoder<Me
     private Message buildFollow(String result) {
         char unFollow = result.charAt(0);
         boolean unFollowBool = unFollow == '1';
-        StringBuilder username = new StringBuilder();
-        int index = 1;
-        while (result.charAt(index) != '\0') {
-            username.append(result.charAt(index));
-            index += 1;
-        }
+        String username = result.substring(1);
         return new Follow(unFollowBool, username.toString());
     }
 

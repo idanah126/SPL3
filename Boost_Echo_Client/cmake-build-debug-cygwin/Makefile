@@ -129,29 +129,29 @@ Boost_Echo_Client/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/build
 .PHONY : Boost_Echo_Client/fast
 
-include/listenerThread.o: include/listenerThread.cpp.o
-.PHONY : include/listenerThread.o
+src/MessageClient.o: src/MessageClient.cpp.o
+.PHONY : src/MessageClient.o
 
 # target to build an object file
-include/listenerThread.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/include/listenerThread.cpp.o
-.PHONY : include/listenerThread.cpp.o
+src/MessageClient.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/src/MessageClient.cpp.o
+.PHONY : src/MessageClient.cpp.o
 
-include/listenerThread.i: include/listenerThread.cpp.i
-.PHONY : include/listenerThread.i
+src/MessageClient.i: src/MessageClient.cpp.i
+.PHONY : src/MessageClient.i
 
 # target to preprocess a source file
-include/listenerThread.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/include/listenerThread.cpp.i
-.PHONY : include/listenerThread.cpp.i
+src/MessageClient.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/src/MessageClient.cpp.i
+.PHONY : src/MessageClient.cpp.i
 
-include/listenerThread.s: include/listenerThread.cpp.s
-.PHONY : include/listenerThread.s
+src/MessageClient.s: src/MessageClient.cpp.s
+.PHONY : src/MessageClient.s
 
 # target to generate assembly for a file
-include/listenerThread.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/include/listenerThread.cpp.s
-.PHONY : include/listenerThread.cpp.s
+src/MessageClient.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/src/MessageClient.cpp.s
+.PHONY : src/MessageClient.cpp.s
 
 src/connectionHandler.o: src/connectionHandler.cpp.o
 .PHONY : src/connectionHandler.o
@@ -201,29 +201,29 @@ src/echoClient.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/src/echoClient.cpp.s
 .PHONY : src/echoClient.cpp.s
 
-src/main.o: src/main.cpp.o
-.PHONY : src/main.o
+src/listenerThread.o: src/listenerThread.cpp.o
+.PHONY : src/listenerThread.o
 
 # target to build an object file
-src/main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/src/main.cpp.o
-.PHONY : src/main.cpp.o
+src/listenerThread.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/src/listenerThread.cpp.o
+.PHONY : src/listenerThread.cpp.o
 
-src/main.i: src/main.cpp.i
-.PHONY : src/main.i
+src/listenerThread.i: src/listenerThread.cpp.i
+.PHONY : src/listenerThread.i
 
 # target to preprocess a source file
-src/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/src/main.cpp.i
-.PHONY : src/main.cpp.i
+src/listenerThread.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/src/listenerThread.cpp.i
+.PHONY : src/listenerThread.cpp.i
 
-src/main.s: src/main.cpp.s
-.PHONY : src/main.s
+src/listenerThread.s: src/listenerThread.cpp.s
+.PHONY : src/listenerThread.s
 
 # target to generate assembly for a file
-src/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/src/main.cpp.s
-.PHONY : src/main.cpp.s
+src/listenerThread.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Boost_Echo_Client.dir/build.make CMakeFiles/Boost_Echo_Client.dir/src/listenerThread.cpp.s
+.PHONY : src/listenerThread.cpp.s
 
 # Help Target
 help:
@@ -234,18 +234,18 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... Boost_Echo_Client"
-	@echo "... include/listenerThread.o"
-	@echo "... include/listenerThread.i"
-	@echo "... include/listenerThread.s"
+	@echo "... src/MessageClient.o"
+	@echo "... src/MessageClient.i"
+	@echo "... src/MessageClient.s"
 	@echo "... src/connectionHandler.o"
 	@echo "... src/connectionHandler.i"
 	@echo "... src/connectionHandler.s"
 	@echo "... src/echoClient.o"
 	@echo "... src/echoClient.i"
 	@echo "... src/echoClient.s"
-	@echo "... src/main.o"
-	@echo "... src/main.i"
-	@echo "... src/main.s"
+	@echo "... src/listenerThread.o"
+	@echo "... src/listenerThread.i"
+	@echo "... src/listenerThread.s"
 .PHONY : help
 
 

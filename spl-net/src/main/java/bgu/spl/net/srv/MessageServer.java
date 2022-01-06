@@ -28,6 +28,7 @@ public abstract class MessageServer<T> implements Server<T> {
         this.protocolFactory = protocolFactory;
         this.encdecFactory = encdecFactory;
 		this.sock = null;
+		connections=new ConnectionsImpl();
     }
 
 
@@ -52,7 +53,8 @@ public abstract class MessageServer<T> implements Server<T> {
                 newProtocol.start(connid, connections);
                 execute(handler);
             }
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
         }
 
         System.out.println("server closed!!!");

@@ -83,10 +83,10 @@
 		<Unit filename="/cygdrive/c/Users/morab/OneDrive/Desktop/works/spl/ass 3/SPL3/Boost_Echo_Client/include/connectionHandler.h">
 			<Option target="Boost_Echo_Client"/>
 		</Unit>
-		<Unit filename="/cygdrive/c/Users/morab/OneDrive/Desktop/works/spl/ass 3/SPL3/Boost_Echo_Client/include/listenerThread.cpp">
+		<Unit filename="/cygdrive/c/Users/morab/OneDrive/Desktop/works/spl/ass 3/SPL3/Boost_Echo_Client/include/listenerThread.h">
 			<Option target="Boost_Echo_Client"/>
 		</Unit>
-		<Unit filename="/cygdrive/c/Users/morab/OneDrive/Desktop/works/spl/ass 3/SPL3/Boost_Echo_Client/include/listenerThread.h">
+		<Unit filename="/cygdrive/c/Users/morab/OneDrive/Desktop/works/spl/ass 3/SPL3/Boost_Echo_Client/src/MessageClient.cpp">
 			<Option target="Boost_Echo_Client"/>
 		</Unit>
 		<Unit filename="/cygdrive/c/Users/morab/OneDrive/Desktop/works/spl/ass 3/SPL3/Boost_Echo_Client/src/connectionHandler.cpp">
@@ -95,7 +95,7 @@
 		<Unit filename="/cygdrive/c/Users/morab/OneDrive/Desktop/works/spl/ass 3/SPL3/Boost_Echo_Client/src/echoClient.cpp">
 			<Option target="Boost_Echo_Client"/>
 		</Unit>
-		<Unit filename="/cygdrive/c/Users/morab/OneDrive/Desktop/works/spl/ass 3/SPL3/Boost_Echo_Client/src/main.cpp">
+		<Unit filename="/cygdrive/c/Users/morab/OneDrive/Desktop/works/spl/ass 3/SPL3/Boost_Echo_Client/src/listenerThread.cpp">
 			<Option target="Boost_Echo_Client"/>
 		</Unit>
 		<Unit filename="/cygdrive/c/Users/morab/OneDrive/Desktop/works/spl/ass 3/SPL3/Boost_Echo_Client/CMakeLists.txt">

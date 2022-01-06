@@ -40,8 +40,7 @@ public class BlockingConnectionHandler<Message> implements Runnable, java.io.Clo
     }
 
     public void send(Message msg){
-        try (Socket sock = this.sock) { //just for automatic closing
-            int read;
+        try{ //just for automatic closing
             out = new BufferedOutputStream(sock.getOutputStream());
             out.write(encdec.encode(msg));
             out.flush();

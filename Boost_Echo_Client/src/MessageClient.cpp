@@ -4,6 +4,16 @@
 
 #include <stdlib.h>
 #include "../include/connectionHandler.h"
+#include "winsock2.h"
+
+
+void run(ConnectionHandler &handler) {
+    while (1){
+        std::string answer;
+        handler.getLine();
+    }
+}
+
 
 int main (int argc, char *argv[]) {
     if (argc < 3) {
@@ -19,8 +29,7 @@ int main (int argc, char *argv[]) {
         return 1;
     }
 
-    listenerThread listener;
-    std::thread th(&listenerThread::run, &listener);
+    std::thread th(run, std::ref(connectionHandler));
     //From here we will see the rest of the ehco client implementation:
     while (1) {
         const short bufsize = 1024;

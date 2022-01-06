@@ -2,7 +2,6 @@ package bgu.spl.net.srv;
 
 import bgu.spl.net.srv.messages.Message;
 import bgu.spl.net.srv.messages.PM;
-import com.sun.tools.javac.util.List;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -36,9 +35,9 @@ public class User {
 
     private int calAge(String date){
         //date = DD-MM-YYYY
-        int year = Integer.parseInt(date.substring(0,4));
-        int month = Integer.parseInt(date.substring(5, 7));
-        int day = Integer.parseInt(date.substring(8, 10));
+        int year = Integer.parseInt(date.substring(6,10));
+        int month = Integer.parseInt(date.substring(3, 5));
+        int day = Integer.parseInt(date.substring(0,2));
         LocalDateTime now= LocalDateTime.now();
         int age = now.getYear() - year;
         if (now.getMonthValue()< month || (now.getMonthValue() == month && now.getDayOfMonth() < day))
@@ -48,7 +47,7 @@ public class User {
 
     public boolean isValidUserAndPass(String username, String pass){
         return password.equals(pass) & Username.equals(username);}
-    public boolean isLoggedIn(){return isLoggedIn();}
+    public boolean isLoggedIn(){return loggedIn;}
     public boolean isFollowing(String username){return following.contains(username);}
     public LinkedList<Message> getUnnotifiedMessages(){return unnotifiedMessages;}
     public String getUserName() {return Username;}

@@ -1,4 +1,5 @@
 #include "../include/connectionHandler.h"
+#include <algorithm>
 
 using boost::asio::ip::tcp;
 
@@ -74,34 +75,44 @@ bool ConnectionHandler::sendLine(std::string& line) {
 bool ConnectionHandler::getFrameAscii(char delimiter) {
     char ch;
     char *bytes= new char[30];
+    int len =30;
     int index=0;
+    bool ans = true;
     // Stop when we encounter the null character.
     // Notice that the null character is not appended to the frame string.
     try {
 		do{
 			getBytes(&ch, 1);
-            bytes= insertIntoArray(bytes,index++, ch);
+            bytes= insertIntoArray(bytes,index++, len, ch);
+            if (len<=index-1) len=len*2;
         }while (delimiter != ch);
-        getMessage(bytes, index);
+        ans = getMessage(bytes, index);
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
-        return false;
+        return ans;
     }
-    return true;
-}
-
-char* ConnectionHandler::insertIntoArray(char array[], int index, char c){
-    char ans[2*sizeof array];
-    if(index>=sizeof(array))
-        std::copy(array[0], array[sizeof array-1], ans);
-    ans[index]=c;
-    delete(array);
     return ans;
 }
 
+char* ConnectionHandler::insertIntoArray(char array[], int index, int len, char c){
+    if(index>=len){
+        char *ans = new char[2*len];
+        copy(ans, array, len);
+        ans[index]=c;
+        delete(array);
+        return ans;
+    }
+    array[index]=c;
+    return array;
+
+}
+
+
+
 bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter) {
-    char *bytes = toBytes(frame);
-    bool result = sendBytes(bytes, sizeof(bytes));
+    std::pair<char*, int> bytes = toBytes(frame);
+    bool result = sendBytes(bytes.first, bytes.second);
+    delete(bytes.first);
 	if(!result) return false;
 	return sendBytes(&delimiter,1);
 }
@@ -115,17 +126,17 @@ void ConnectionHandler::close() {
     }
 }
 
-char* ConnectionHandler::toBytes(const std::string &line) {
+std::pair<char*, int> ConnectionHandler::toBytes(const std::string &line) {
     int index = line.find(" ");
-    if (line.substr(0, index) == "REGISTER") return RegisterToBytes(line.substr(index+2));
-    if (line.substr(0, index) == "LOGIN") return LoginToBytes(line.substr(index+2));
+    if (line.substr(0, index) == "REGISTER") return RegisterToBytes(line.substr(index + 1));
+    if (line.substr(0, index) == "LOGIN") return LoginToBytes(line.substr(index+1));
     if (line.substr(0, index) == "LOGOUT") return LogoutToBytes();
-    if (line.substr(0, index) == "FOLLOW") return UnFollowToBytes(line.substr(index+2));
-    if (line.substr(0, index) == "POST") return PostToBytes(line.substr(index+2));
-    if (line.substr(0, index) == "PM") return PMToBytes(line.substr(index+2));
+    if (line.substr(0, index) == "FOLLOW") return UnFollowToBytes(line.substr(index+1));
+    if (line.substr(0, index) == "POST") return PostToBytes(line.substr(index+1));
+    if (line.substr(0, index) == "PM") return PMToBytes(line.substr(index+1));
     if (line.substr(0, index) == "LOGSTAT") return LogstatToBytes();
-    if (line.substr(0, index) == "STAT") return StatToBytes(line.substr(index+2));
-    return BlockToBytes(line.substr(index+2));
+    if (line.substr(0, index) == "STAT") return StatToBytes(line.substr(index+1));
+    return BlockToBytes(line.substr(index+1));
 }
 
 void ConnectionHandler::shortToBytes(short num, char* bytesArr)
@@ -134,78 +145,86 @@ void ConnectionHandler::shortToBytes(short num, char* bytesArr)
     bytesArr[1] = (num & 0xFF);
 }
 
-char *ConnectionHandler::RegisterToBytes(const string &frame) {
-    char ans[3 + frame.length()];
-    shortToBytes(2, ans);
+std::pair<char*, int> ConnectionHandler::RegisterToBytes(const string &frame) {
+    char *ans = new char[3 + frame.length()];
+    shortToBytes(1, ans);
     int frameIndex = 0;
     int ArrayIndex = 2;
-    while (frameIndex != frame.length()){
-        int index = frame.find(" ", frameIndex);
-        for (; frameIndex < index; frameIndex++, ArrayIndex++)
-            ans[ArrayIndex] = frame[frameIndex];
-        ans[ArrayIndex] = '\0';
+    std::string changeable = frame;
+    while (frameIndex < frame.length()){
+        int index = changeable.find(" ");
+        if (index == -1) index = changeable.length();
+        for (int i = 0; i < index; frameIndex++, ArrayIndex++, i++) 
+            ans[ArrayIndex] = changeable[i];
+        ans[ArrayIndex++] = '\0';
+        changeable = changeable.substr(std::min(index+1, (int)changeable.length()));
+        frameIndex++;
     }
-    return ans;
+    return std::pair<char*, int>(ans, 3 + frame.length());
 }
 
 
-char* ConnectionHandler::LoginToBytes(const std::string &frame){
-    char ans[4+frame.length()];
+std::pair<char*, int> ConnectionHandler::LoginToBytes(const std::string &frame){
+    char *ans = new char[3+frame.length()];
     shortToBytes(2, ans);
     int frameIndex=0;
     int ArrayIndex=2;
-    while (frameIndex!=frame.length()){
-        int index = frame.find(" ");
-        for (; frameIndex<index; frameIndex++, ArrayIndex++)
-            ans[ArrayIndex]=frame[frameIndex];
-        ans[ArrayIndex]='\0';
+    std::string changeable = frame;
+    while (frameIndex<frame.length()){
+        int index = changeable.find(" ");
+        if (index == -1) index = changeable.length();
+        for (int i = 0; i < index; frameIndex++, ArrayIndex++, i++)
+            ans[ArrayIndex]= changeable[i];
+        ans[ArrayIndex++]='\0';
+        changeable = changeable.substr(std::min(index + 1, (int)changeable.length()));
+        frameIndex++;
     }
-    ans[ArrayIndex+1]='1';
-    return ans;
+    return std::pair<char*, int>(ans, 2 + frame.length());
 }
 
-char* ConnectionHandler::LogoutToBytes(){
-    char ans[2];
+std::pair<char*, int> ConnectionHandler::LogoutToBytes(){
+    char *ans = new char[2];
     shortToBytes(3, ans);
-    return ans;
+    return std::pair<char*, int>(ans, 2);
 }
 
-char* ConnectionHandler::UnFollowToBytes(const std::string &frame){
-    char ans[2+frame.length()];
+std::pair<char*, int> ConnectionHandler::UnFollowToBytes(const std::string &frame){
+    char *ans = new char[2+frame.length()];
     shortToBytes(4, ans);
-    int frameIndex=0;
-    int ArrayIndex=2;
-    while (frameIndex!=frame.length()){
-        int index = frame.find(" ");
-        for (; frameIndex<index; frameIndex++, ArrayIndex++)
-            ans[ArrayIndex]=frame[frameIndex];
-        ans[ArrayIndex]='\0';
+    ans[2] = frame[0];
+    for (int i = 2; i < frame.length(); i++) {
+        ans[i + 1] = frame[i];
     }
-    return ans;
+    return std::pair<char*, int>(ans, 2 + frame.length());
 }
 
-char* ConnectionHandler::PostToBytes(const std::string &frame){
-    char ans[3+frame.length()];
+std::pair<char*, int> ConnectionHandler::PostToBytes(const std::string &frame){
+    char *ans = new char[3+frame.length()];
     shortToBytes(5, ans);
     int i=0;
     for (; i<frame.length(); i++)
         ans[i+2]=frame[i];
     ans[i]='\0';
-    return ans;
+    return std::pair<char*, int>(ans, 3 + frame.length());
 }
 
-char* ConnectionHandler::PMToBytes(const std::string &frame){
-    char ans[20+frame.length()];
+std::pair<char*, int> ConnectionHandler::PMToBytes(const std::string &frame){
+    char *ans = new char[20+frame.length()];
     shortToBytes(6, ans);
     int frameIndex=0;
     int ArrayIndex=2;
-    while (frameIndex!=frame.length()){
-        int index = frame.find(" ");
-        for (; frameIndex<index; frameIndex++, ArrayIndex++)
-            ans[ArrayIndex]=frame[frameIndex];
-        ans[ArrayIndex]='\0';
+    std::string changeable = frame;
+    while (frameIndex<frame.length()) {
+        int index = changeable.find(" ");
+        if (index == -1) index = changeable.length();
+        for (int i = 0; i < index; frameIndex++, ArrayIndex++, i++)
+            ans[ArrayIndex] = changeable[i];
+        ans[ArrayIndex++] = '\0';
+        changeable = changeable.substr(std::min(index + 1, (int)changeable.length()));
+        frameIndex++;
     }
     time_t now= time(0);
+    /*
     tm *ltm= localtime(&now);
     int day = ltm->tm_mday;
     ArrayIndex++;
@@ -238,17 +257,19 @@ char* ConnectionHandler::PMToBytes(const std::string &frame){
     else
     {ans[ArrayIndex++]=(minutes/10); ans[ArrayIndex++]=(minutes%10);}
     ans[ArrayIndex]='\0';
-    return ans;
+    */
+
+    return std::pair<char*, int>(ans, 20 + frame.length());
 }
 
-char *ConnectionHandler::LogstatToBytes() {
-    char ans[2];
+std::pair<char*, int> ConnectionHandler::LogstatToBytes() {
+    char *ans = new char[2];
     shortToBytes(7, ans);
-    return ans;
+    return std::pair<char*, int>(ans, 2);
 }
 
-char *ConnectionHandler::StatToBytes(const string &frame) {
-    char ans[frame.length() + 3];
+std::pair<char*, int> ConnectionHandler::StatToBytes(const string &frame) {
+    char *ans = new char[frame.length() + 3];
     shortToBytes(8, ans);
     int frameIndex = 0;
     int ArrayIndex = 2;
@@ -262,30 +283,31 @@ char *ConnectionHandler::StatToBytes(const string &frame) {
         int index = temp.find(" ");
         for (; frameIndex < index; frameIndex++, ArrayIndex++)
             ans[ArrayIndex] = temp[frameIndex];
-        ans[ArrayIndex] = '\0';
+        ans[ArrayIndex] = 0;
     }
-    return ans;
+    return std::pair<char*, int>(ans, 3 + frame.length());
 }
 
-char* ConnectionHandler::BlockToBytes(const std::string &frame){
-    char ans[3+frame.length()];
+std::pair<char*, int> ConnectionHandler::BlockToBytes(const std::string &frame){
+    char *ans = new char[3+frame.length()];
     shortToBytes(12, ans);
     int i=0;
     for (; i<frame.length(); i++)
         ans[i+2]=frame[i];
     ans[i]='\0';
-    return ans;
+    return std::pair<char*, int>(ans, 3 + frame.length());
 }
 
 
-void ConnectionHandler::getMessage(char *bytes, int len) {
+bool ConnectionHandler::getMessage(char *bytes, int len) {
     char opcode[2];
     opcode[0]=bytes[0];
     opcode[1]=bytes[1];
     short result = bytesToShort(opcode);
-    if (result==9) getNotification(bytes, len);
-    if (result==10) getAck(bytes, len);
-    if (result==11) getError(bytes, len);
+    if (result==9) return getNotification(bytes, len);
+    if (result==10) return getAck(bytes, len);
+    if (result==11) return getError(bytes, len);
+    return true;
 }
 short ConnectionHandler::bytesToShort(char* bytesArr)
 {
@@ -294,7 +316,7 @@ short ConnectionHandler::bytesToShort(char* bytesArr)
     return result;
 }
 
-void ConnectionHandler::getNotification(char *bytes, int len) {
+bool ConnectionHandler::getNotification(char *bytes, int len) {
     char messageOpcode[1];
     messageOpcode[0]=bytes[2];
     short mo= bytesToShort(messageOpcode);
@@ -305,10 +327,11 @@ void ConnectionHandler::getNotification(char *bytes, int len) {
         if (bytes[i] == '\0') ans = ans + " ";
         else ans = ans + bytes[i];
     }
-    std::cout<<"ACK "+mo+ans.substr(0, ans.length()-2)<<std::endl;
+    std::cout<<"NOTIFICATION "<<mo<<ans.substr(0, ans.length()-2)<<std::endl;
+    return false;
 }
 
-void ConnectionHandler::getAck(char *bytes, int len) {
+bool ConnectionHandler::getAck(char *bytes, int len) {
     char messageOpcode[2];
     messageOpcode[0]=bytes[2];
     messageOpcode[1]=bytes[3];
@@ -316,16 +339,26 @@ void ConnectionHandler::getAck(char *bytes, int len) {
     std::string ans="";
     for(int i=4; i<len; i++)
         ans=ans+bytes[i];
-    std::cout<<"ACK "+mo+ans.substr(0, ans.length()-1)<<std::endl;
-    if (mo==3)
-        std::terminate();
+    std::cout<<"ACK "<<mo<<" "<<ans.substr(0, ans.length()-1)<<std::endl;
+    if (mo == 3)
+    {
+        return true;
+    }
+    return false;
 }
 
-void ConnectionHandler::getError(char *bytes, int len) {
+bool ConnectionHandler::getError(char *bytes, int len) {
     char messageOpcode[2];
     messageOpcode[0]=bytes[2];
     messageOpcode[1]=bytes[3];
     short mo= bytesToShort(messageOpcode);
-    std::cout<<"ERROR "+mo<<std::endl;
+    std::cout<<"ERROR "<<mo<<std::endl;
+    return false;
+
+}
+
+void ConnectionHandler::copy(char *dest, char *copy, int len) {
+    for (int i=0; i<len; i++)
+        dest[i]=copy[i];
 
 }

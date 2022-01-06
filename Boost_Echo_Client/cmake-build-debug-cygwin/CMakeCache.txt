@@ -441,7 +441,7 @@ CMAKE_UNAME:INTERNAL=/usr/bin/uname.exe
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding Boost
-FIND_PACKAGE_MESSAGE_DETAILS_Boost:INTERNAL=[/usr/include][c ][v0.0.0()]
+FIND_PACKAGE_MESSAGE_DETAILS_Boost:INTERNAL=[/cygdrive/c/cygwin64/usr/include][c ][v0.0.0()]
 //ADVANCED property for variable: ProcessorCount_cmd_nproc
 ProcessorCount_cmd_nproc-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ProcessorCount_cmd_sysctl
@@ -449,7 +449,7 @@ ProcessorCount_cmd_sysctl-ADVANCED:INTERNAL=1
 //Components requested for this build tree.
 _Boost_COMPONENTS_SEARCHED:INTERNAL=
 //Last used Boost_INCLUDE_DIR value.
-_Boost_INCLUDE_DIR_LAST:INTERNAL=/usr/include
+_Boost_INCLUDE_DIR_LAST:INTERNAL=/cygdrive/c/cygwin64/usr/include
 //Last used Boost_NAMESPACE value.
 _Boost_NAMESPACE_LAST:INTERNAL=boost
 //Last used Boost_USE_MULTITHREADED value.

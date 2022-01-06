@@ -2,7 +2,6 @@ package bgu.spl.net.api.bidi;
 
 import bgu.spl.net.srv.messages.*;
 import bgu.spl.net.srv.messages.Error;
-import sun.security.jca.GetInstance;
 
 import java.awt.*;
 import java.util.LinkedList;
@@ -50,7 +49,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
 
     private void processLogin(Login message) {
-        if (!data.isRegistered(connectionID) | !data.isUserAndPassCorrect(connectionID, message.userName, message.password)
+        if (!data.isRegistered(connectionID) || !data.isUserAndPassCorrect(connectionID, message.userName, message.password)
                 | data.isLoggedIn(connectionID) | !message.captcha)
             send(connectionID,new Error(2));
         else {
@@ -68,12 +67,13 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         else{
             data.logout(connectionID);
             send(connectionID, new Ack(3));
+            shouldTerminate=true;
         }
     }
 
     private void processFollow(Follow message) {
         if (message.unFollow){
-            if (!data.isLoggedIn(connectionID) | data.isFollowing(connectionID, message.userName))
+            if (!data.isLoggedIn(connectionID) || !data.isRegistered(message.userName) || !data.isFollowing(connectionID, message.userName))
                 send(connectionID, new Error(4));
             else {
                 data.unfollow(connectionID, message.userName);
@@ -81,8 +81,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             }
         }
         else{
-            if (!data.isLoggedIn(connectionID) | !data.isFollowing(connectionID, message.userName)
-                    |data.isBlockedby(connectionID, message.userName))
+            if (!data.isLoggedIn(connectionID) || !data.isRegistered(message.userName) || data.isFollowing(connectionID, message.userName)
+                    | data.isBlockedby(connectionID, message.userName))
                 send(connectionID, new Error(4));
             else {
                 data.follow(connectionID, message.userName);
@@ -159,7 +159,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
 
     private void send(int connId, Message msg){
-        if (!data.isLoggedIn(connId))
+        if (!data.isLoggedIn(connId) & !((msg instanceof Ack) && (((Ack)msg).messageOpcode==1) | ((Ack)msg).messageOpcode==3) &  !((msg instanceof Error)))
             data.addToUnotifiedList(connId, msg);
         else connections.send(connId, msg);
     }
