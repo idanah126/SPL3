@@ -214,53 +214,51 @@ std::pair<char*, int> ConnectionHandler::PMToBytes(const std::string &frame){
     shortToBytes(6, ans);
     int frameIndex=0;
     int ArrayIndex=2;
-    std::string changeable = frame;
-    while (frameIndex<frame.length()) {
-        int index = changeable.find(" ");
-        if (index == -1) index = changeable.length();
-        for (int i = 0; i < index; frameIndex++, ArrayIndex++, i++)
-            ans[ArrayIndex] = changeable[i];
-        ans[ArrayIndex++] = '\0';
-        changeable = changeable.substr(std::min(index + 1, (int)changeable.length()));
-        frameIndex++;
-    }
-    time_t now= time(0);
-    /*
-    tm *ltm= localtime(&now);
-    int day = ltm->tm_mday;
-    ArrayIndex++;
+    int index = frame.find(" ");
+    for (; frameIndex < index; frameIndex++, ArrayIndex++)
+        ans[ArrayIndex] = frame[frameIndex];
+    ans[ArrayIndex++] = '\0';
+    frameIndex++;
+    while (frameIndex<frame.length()) 
+        ans[ArrayIndex++] = frame[frameIndex++];
+    ans[ArrayIndex++] = '\0';
+    
+    boost::posix_time::ptime timeLocal =
+        boost::posix_time::second_clock::local_time();
+    boost::gregorian::date dateObj = timeLocal.date();
+    int day = dateObj.day();
     if (day<10)
         {ans[ArrayIndex++]='0'; ans[ArrayIndex++]=day;}
     else
         {ans[ArrayIndex++]=(day/10); ans[ArrayIndex++]=(day%10);}
     ans[ArrayIndex++]='-';
-    int month= ltm->tm_mon;
+    int month = dateObj.month();
     if(month<10)
     {ans[ArrayIndex++]='0'; ans[ArrayIndex++]=month;}
     else
     {ans[ArrayIndex++]=(month/10); ans[ArrayIndex++]=(month%10);}
     ans[ArrayIndex++]='-';
-    int year= 1900+ltm->tm_year;
+    int year = dateObj.year();
     ans[ArrayIndex++]=year/1000;
     ans[ArrayIndex++]=(year/100)%10;
     ans[ArrayIndex++]=(year/10)%10;
     ans[ArrayIndex++]= year%10;
     ans[ArrayIndex++]=' ';
-    int hour= ltm->tm_hour;
+    boost::posix_time::time_duration timeObj = timeLocal.time_of_day();
+    int hour = timeObj.hours();
     if(hour<10)
     {ans[ArrayIndex++]='0'; ans[ArrayIndex++]=hour;}
     else
     {ans[ArrayIndex++]=(hour/10); ans[ArrayIndex++]=(hour%10);}
     ans[ArrayIndex++]=':';
-    int minutes= ltm->tm_min;
+    int minutes= timeObj.minutes();
     if(minutes<10)
     {ans[ArrayIndex++]='0'; ans[ArrayIndex++]=minutes;}
     else
     {ans[ArrayIndex++]=(minutes/10); ans[ArrayIndex++]=(minutes%10);}
-    ans[ArrayIndex]='\0';
-    */
+    ans[ArrayIndex]='\0';   
 
-    return std::pair<char*, int>(ans, 20 + frame.length());
+
 }
 
 std::pair<char*, int> ConnectionHandler::LogstatToBytes() {

@@ -121,13 +121,14 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
 
     private void processPM(PM message) {
-        if (!data.isLoggedIn(connectionID) | !data.isRegistered(message.userName)
+        if ( !data.isRegistered(message.userName) || !data.isLoggedIn(connectionID)
                 | !data.isFollowing(connectionID, message.userName))
             send(connectionID, new Error(6));
         else{
             String content = data.filter(message.content);
             data.PM(connectionID,content);
-            send(data.getIdByUsername(message.userName), new Notification(false, data.getUsernameById(connectionID), content));
+            send(connectionID, new Ack(6));
+            send(data.getIdByUsername(message.userName), new Notification(false, data.getUsernameById(connectionID), content+" "+message.dateAndTime));
         }
     }
 
