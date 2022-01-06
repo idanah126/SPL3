@@ -209,56 +209,73 @@ std::pair<char*, int> ConnectionHandler::PostToBytes(const std::string &frame){
     return std::pair<char*, int>(ans, 3 + frame.length());
 }
 
-std::pair<char*, int> ConnectionHandler::PMToBytes(const std::string &frame){
-    char *ans = new char[20+frame.length()];
+std::pair<char*, int> ConnectionHandler::PMToBytes(const std::string& frame) {
+    char digits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+    char* ans = new char[20 + frame.length()];
     shortToBytes(6, ans);
-    int frameIndex=0;
-    int ArrayIndex=2;
+    int frameIndex = 0;
+    int ArrayIndex = 2;
     int index = frame.find(" ");
     for (; frameIndex < index; frameIndex++, ArrayIndex++)
         ans[ArrayIndex] = frame[frameIndex];
     ans[ArrayIndex++] = '\0';
     frameIndex++;
-    while (frameIndex<frame.length()) 
+    while (frameIndex < frame.length())
         ans[ArrayIndex++] = frame[frameIndex++];
     ans[ArrayIndex++] = '\0';
-    
+
     boost::posix_time::ptime timeLocal =
         boost::posix_time::second_clock::local_time();
     boost::gregorian::date dateObj = timeLocal.date();
     int day = dateObj.day();
-    if (day<10)
-        {ans[ArrayIndex++]='0'; ans[ArrayIndex++]=day;}
+    if (day < 10)
+    {
+        ans[ArrayIndex++] = '0'; ans[ArrayIndex++] = digits[day];
+    }
     else
-        {ans[ArrayIndex++]=(day/10); ans[ArrayIndex++]=(day%10);}
-    ans[ArrayIndex++]='-';
+    {
+        ans[ArrayIndex++] = digits[(day / 10)]; ans[ArrayIndex++] = digits[(day % 10)];
+    }
+    ans[ArrayIndex++] = '-';
     int month = dateObj.month();
-    if(month<10)
-    {ans[ArrayIndex++]='0'; ans[ArrayIndex++]=month;}
+    if (month < 10)
+    {
+        ans[ArrayIndex++] = '0'; ans[ArrayIndex++] = digits[month];
+    }
     else
-    {ans[ArrayIndex++]=(month/10); ans[ArrayIndex++]=(month%10);}
-    ans[ArrayIndex++]='-';
+    {
+        ans[ArrayIndex++] = digits[(month / 10)]; ans[ArrayIndex++] = digits[(month % 10)];
+    }
+    ans[ArrayIndex++] = '-';
     int year = dateObj.year();
-    ans[ArrayIndex++]=year/1000;
-    ans[ArrayIndex++]=(year/100)%10;
-    ans[ArrayIndex++]=(year/10)%10;
-    ans[ArrayIndex++]= year%10;
-    ans[ArrayIndex++]=' ';
+    ans[ArrayIndex++] = digits[year / 1000];
+    ans[ArrayIndex++] = digits[(year / 100) % 10];
+    ans[ArrayIndex++] = digits[(year / 10) % 10];
+    ans[ArrayIndex++] = digits[year % 10];
+    ans[ArrayIndex++] = ' ';
     boost::posix_time::time_duration timeObj = timeLocal.time_of_day();
     int hour = timeObj.hours();
-    if(hour<10)
-    {ans[ArrayIndex++]='0'; ans[ArrayIndex++]=hour;}
+    if (hour < 10)
+    {
+        ans[ArrayIndex++] = '0'; ans[ArrayIndex++] = digits[hour];
+    }
     else
-    {ans[ArrayIndex++]=(hour/10); ans[ArrayIndex++]=(hour%10);}
-    ans[ArrayIndex++]=':';
-    int minutes= timeObj.minutes();
-    if(minutes<10)
-    {ans[ArrayIndex++]='0'; ans[ArrayIndex++]=minutes;}
+    {
+        ans[ArrayIndex++] = digits[(hour / 10)]; ans[ArrayIndex++] = digits[(hour % 10)];
+    }
+    ans[ArrayIndex++] = ':';
+    int minutes = timeObj.minutes();
+    if (minutes < 10)
+    {
+        ans[ArrayIndex++] = '0'; ans[ArrayIndex++] = digits[minutes];
+    }
     else
-    {ans[ArrayIndex++]=(minutes/10); ans[ArrayIndex++]=(minutes%10);}
-    ans[ArrayIndex]='\0';   
+    {
+        ans[ArrayIndex++] = digits[(minutes / 10)]; ans[ArrayIndex++] = digits[(minutes % 10)];
+    }
+    ans[ArrayIndex] = '\0';
 
-
+    return std::pair<char*, int>(ans, frame.length() + 20);
 }
 
 std::pair<char*, int> ConnectionHandler::LogstatToBytes() {
@@ -335,6 +352,7 @@ bool ConnectionHandler::getAck(char *bytes, int len) {
     std::string ans="";
     for(int i=4; i<len; i++)
         ans=ans+bytes[i];
+    std::cout << ans << std::endl;
     std::cout<<"ACK "<<mo<<" "<<ans.substr(0, ans.length()-1)<<std::endl;
     if (mo == 3)
     {

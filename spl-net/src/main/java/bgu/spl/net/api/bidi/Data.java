@@ -91,8 +91,7 @@ public class Data {
         for (int i=0; i<filteredWords.size(); i++){
             int indexOfBadWord = ans.indexOf(filteredWords.get(i));
             while (indexOfBadWord != -1) {
-                ans = ans.substring(0, indexOfBadWord);
-                ans = ans+"<filtered>"+ans.substring(indexOfBadWord+filteredWords.get(i).length());
+                ans = ans.substring(0, indexOfBadWord)+"<filtered>"+ans.substring(indexOfBadWord+filteredWords.get(i).length());
                 indexOfBadWord = ans.indexOf(filteredWords.get(i));
             }
         }
@@ -105,7 +104,7 @@ public class Data {
         synchronized (users.get(connectionID)){ myUsername = users.get(connectionID).getUserName();}
         for(Map.Entry<Integer, User> entry: users.getSet())
             synchronized (entry.getValue()) {
-                if (!entry.getValue().getUserName().equals(myUsername) & !entry.getValue().isBlocking(myUsername))
+                if (!entry.getValue().getUserName().equals(myUsername) & !entry.getValue().isBlocking(myUsername) & entry.getValue().isLoggedIn())
                     ans.add(entry.getValue().getStat());
             }
         return ans;

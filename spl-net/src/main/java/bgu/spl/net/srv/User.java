@@ -65,7 +65,8 @@ public class User {
     }
 
     public String getStat() {
-        return ""+age+" "+(posts.size()+ PMs.size())+" "+followers.size()+" "+following.size();
+        String ans = ""+age+" "+posts.size()+" "+followers.size()+" "+following.size();
+        return ans;
     }
 
     public void Block(String userName) {
