@@ -189,13 +189,14 @@ std::pair<char*, int> ConnectionHandler::LogoutToBytes(){
 }
 
 std::pair<char*, int> ConnectionHandler::UnFollowToBytes(const std::string &frame){
-    char *ans = new char[2+frame.length()];
+    char *ans = new char[1+frame.length()];
     shortToBytes(4, ans);
     ans[2] = frame[0];
     for (int i = 2; i < frame.length(); i++) {
         ans[i + 1] = frame[i];
     }
-    return std::pair<char*, int>(ans, 2 + frame.length());
+
+    return std::pair<char*, int>(ans, 1 + frame.length());
 }
 
 std::pair<char*, int> ConnectionHandler::PostToBytes(const std::string &frame){
@@ -204,7 +205,7 @@ std::pair<char*, int> ConnectionHandler::PostToBytes(const std::string &frame){
     int i=0;
     for (; i<frame.length(); i++)
         ans[i+2]=frame[i];
-    ans[i]='\0';
+    ans[i+2]='\0';
     return std::pair<char*, int>(ans, 3 + frame.length());
 }
 
@@ -317,17 +318,14 @@ short ConnectionHandler::bytesToShort(char* bytesArr)
 }
 
 bool ConnectionHandler::getNotification(char *bytes, int len) {
-    char messageOpcode[1];
-    messageOpcode[0]=bytes[2];
-    short mo= bytesToShort(messageOpcode);
     std::string ans="";
-    if (mo==0) ans="PM";
-    else ans="Public";
+    if (bytes[2] == '0') ans = "PM";
+    else ans="Public ";
     for(int i=3; i<len; i++) {
         if (bytes[i] == '\0') ans = ans + " ";
         else ans = ans + bytes[i];
     }
-    std::cout<<"NOTIFICATION "<<mo<<ans.substr(0, ans.length()-2)<<std::endl;
+    std::cout<<"NOTIFICATION "<<ans.substr(0, ans.length()-2)<<std::endl;
     return false;
 }
 

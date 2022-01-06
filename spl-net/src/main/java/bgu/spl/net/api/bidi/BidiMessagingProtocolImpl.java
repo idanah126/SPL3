@@ -95,18 +95,27 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         if (!data.isLoggedIn(connectionID))
             send(connectionID, new Error(5));
         else {
-            data.post(connectionID, message.content);
+
             LinkedList<Integer> users = data.getFollowersId(connectionID);
             String post = message.content;
             int indexOfUsername = post.indexOf('@');
-            while (indexOfUsername != -1) {
+            boolean stillValid=true;
+            while (indexOfUsername != -1 & stillValid) {
                 post = post.substring(indexOfUsername + 1);
                 int endOfUsername = post.indexOf(" ");
-                users.add(data.getIdByUsername(post.substring(0, endOfUsername)));
+                if (endOfUsername==-1) endOfUsername=post.length();
+                if(!data.isRegistered(post.substring(0, endOfUsername)))
+                {send(connectionID, new Error(5)); stillValid=false; break;}
+                if (!users.contains(data.getIdByUsername(post.substring(0, endOfUsername))))
+                    users.add(data.getIdByUsername(post.substring(0, endOfUsername)));
                 indexOfUsername = post.indexOf('@');
             }
-            for (Integer connId : users) {
-                send(connId, new Notification(true, data.getUsernameById(connectionID), message.content));
+            if (stillValid) {
+                data.post(connectionID, message.content);
+                send(connectionID, new Ack(5));
+                for (Integer connId : users) {
+                    send(connId, new Notification(true, data.getUsernameById(connectionID), message.content));
+                }
             }
         }
     }
