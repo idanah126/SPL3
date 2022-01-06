@@ -349,10 +349,27 @@ bool ConnectionHandler::getAck(char *bytes, int len) {
     messageOpcode[0]=bytes[2];
     messageOpcode[1]=bytes[3];
     short mo= bytesToShort(messageOpcode);
+    if (mo == 7 | mo == 8) {
+        char age[2];
+        age[0] = bytes[4]; age[1] = bytes[5];
+        short a = bytesToShort(age);
+        char numPosts[2];
+        numPosts[0] = bytes[6]; numPosts[1] = bytes[7];
+        short b = bytesToShort(numPosts);
+        char numFollowers[2];
+        numFollowers[0] = bytes[8]; numFollowers[1] = bytes[9];
+        short c = bytesToShort(numFollowers);
+        char numFollowing[2];
+        numFollowing[0] = bytes[10]; numFollowing[1] = bytes[11];
+        short d = bytesToShort(numFollowing);
+        std::cout <<"ACK "<<mo<<" "<<a<<" "<<b<<" "<<c<<" "<<d << std::endl;
+        return false;
+    }
     std::string ans="";
-    for(int i=4; i<len; i++)
-        ans=ans+bytes[i];
-    std::cout << ans << std::endl;
+    for (int i = 4; i < len; i++)
+    {
+        ans = ans + bytes[i];
+    }
     std::cout<<"ACK "<<mo<<" "<<ans.substr(0, ans.length()-1)<<std::endl;
     if (mo == 3)
     {

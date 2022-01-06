@@ -95,36 +95,14 @@ public class BidiObjectMessageEncoderDecoder implements MessageEncoderDecoder<Me
         }
         else if (messageOpcode == 7 || messageOpcode == 8){
             String stats = ack.optional;
-            int turn = 0;
-            short age = 0;
-            short numPosts = 0;
-            short numFollowers = 0;
-            short numFollowing = 0;
-            String temp = "";
-            for (int i = 0; i < stats.length(); i++) {
-                if (stats.charAt(i) != ' '){
-                    temp += stats.charAt(i);
-                }
-                else {
-                    if (turn == 0) {
-                        age = (short) Integer.parseInt(temp);
-                        turn += 1;
-                    }
-                    else if (turn == 1){
-                        numPosts = (short) Integer.parseInt(temp);
-                        turn += 1;
-                    }
-                    else if (turn == 2){
-                        numFollowers = (short) Integer.parseInt(temp);
-                        turn += 1;
-                    }
-                    else if (turn == 3){
-                        numFollowing = (short) Integer.parseInt(temp);
-                        turn += 1;
-                    }
-                    temp = "";
-                }
-            }
+            short age = (short) Integer.parseInt(stats.substring(0, stats.indexOf(" ")));
+            stats=stats.substring(stats.indexOf(" ")+1);
+            short numPosts = (short) Integer.parseInt(stats.substring(0, stats.indexOf(" ")));
+            stats=stats.substring(stats.indexOf(" ")+1);
+            short numFollowers = (short) Integer.parseInt(stats.substring(0, stats.indexOf(" ")));
+            stats=stats.substring(stats.indexOf(" ")+1);
+            short numFollowing = (short) Integer.parseInt(stats);
+
             byte[] ageBytes = shortToBytes(age); byte[] numPostsBytes = shortToBytes(numPosts);
             byte[] numFollowersBytes = shortToBytes(numFollowers); byte[] numFollowingBytes = shortToBytes(numFollowing);
             bytes.add(ageBytes[0]); bytes.add(ageBytes[1]); bytes.add(numPostsBytes[0]); bytes.add(numPostsBytes[1]);
