@@ -72,7 +72,9 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
 
     private void processFollow(Follow message) {
-        if (message.unFollow){
+        if (message.userName==data.getUsernameById(connectionID))
+            send(connectionID, new Error(4));
+        else if (message.unFollow){
             if (!data.isLoggedIn(connectionID) || !data.isRegistered(message.userName) || !data.isFollowing(connectionID, message.userName))
                 send(connectionID, new Error(4));
             else {
@@ -92,7 +94,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
 
     private void processPost(Post message) {
-        if (!data.isLoggedIn(connectionID))
+        if ( !data.isLoggedIn(connectionID))
             send(connectionID, new Error(5));
         else {
             LinkedList<Integer> users = data.getFollowersId(connectionID);
@@ -124,7 +126,9 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
 
     private void processPM(PM message) {
-        if ( !data.isRegistered(message.userName) || !data.isLoggedIn(connectionID)
+        if (message.userName==data.getUsernameById(connectionID))
+            send(connectionID, new Error(4));
+       else  if ( !data.isRegistered(message.userName) || !data.isLoggedIn(connectionID)
                 | !data.isFollowing(connectionID, message.userName))
             send(connectionID, new Error(6));
         else{
@@ -163,6 +167,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
 
     private void processBlock(Block message) {
+        if (!data.isRegistered(connectionID) || !data.isLoggedIn(connectionID) | message.userName==data.getUsernameById(connectionID))
+            send(connectionID, new Error(4));
         if (!data.isRegistered(message.userName))
             send(connectionID, new Error(12));
         else{

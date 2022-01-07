@@ -285,6 +285,13 @@ std::pair<char*, int> ConnectionHandler::LogstatToBytes() {
 }
 
 std::pair<char*, int> ConnectionHandler::StatToBytes(const string &frame) {
+    if (frame == "STAT") {
+        char* ans = new char[3];
+        shortToBytes(8, ans);
+        ans[2] = 0;
+        return std::pair<char*, int>(ans, 3);
+    }
+
     char *ans = new char[frame.length() + 3];
     shortToBytes(8, ans);
     int frameIndex = 0;
@@ -297,6 +304,7 @@ std::pair<char*, int> ConnectionHandler::StatToBytes(const string &frame) {
     }
     while (frameIndex != temp.length()){
         int index = temp.find(" ");
+        if (index == -1) index = temp.length();
         for (; frameIndex < index; frameIndex++, ArrayIndex++)
             ans[ArrayIndex] = temp[frameIndex];
         ans[ArrayIndex] = 0;
@@ -310,7 +318,7 @@ std::pair<char*, int> ConnectionHandler::BlockToBytes(const std::string &frame){
     int i=0;
     for (; i<frame.length(); i++)
         ans[i+2]=frame[i];
-    ans[i]='\0';
+    ans[i+2]='\0';
     return std::pair<char*, int>(ans, 3 + frame.length());
 }
 
