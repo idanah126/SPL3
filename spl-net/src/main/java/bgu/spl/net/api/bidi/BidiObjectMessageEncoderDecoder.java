@@ -276,6 +276,7 @@ public class BidiObjectMessageEncoderDecoder implements MessageEncoderDecoder<Me
             }
             index += 1;
         }
+        usernames.add(username.toString());
         return new Stat(usernames);
     }
 

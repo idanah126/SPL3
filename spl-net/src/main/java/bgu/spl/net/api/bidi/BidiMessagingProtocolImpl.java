@@ -40,7 +40,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
 
     private void processRegister(Register message) {
-        if (data.isRegistered(connectionID))
+        if (data.isRegistered(connectionID) | data.isRegistered(message.userName))
             send(connectionID, new Error(1));
         else{
             data.register(message, connectionID);
@@ -82,7 +82,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         }
         else{
             if (!data.isLoggedIn(connectionID) || !data.isRegistered(message.userName) || data.isFollowing(connectionID, message.userName)
-                    | data.isBlockedby(connectionID, message.userName))
+                    | data.isBlockedby(connectionID, message.userName) | data.isBlockedby(message.userName, connectionID))
                 send(connectionID, new Error(4));
             else {
                 data.follow(connectionID, message.userName);
@@ -95,27 +95,30 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         if (!data.isLoggedIn(connectionID))
             send(connectionID, new Error(5));
         else {
-
             LinkedList<Integer> users = data.getFollowersId(connectionID);
+            LinkedList<Integer> mentioned = new LinkedList<>();
             String post = message.content;
             int indexOfUsername = post.indexOf('@');
-            boolean stillValid=true;
-            while (indexOfUsername != -1 & stillValid) {
+            while (indexOfUsername != -1) {
                 post = post.substring(indexOfUsername + 1);
                 int endOfUsername = post.indexOf(" ");
                 if (endOfUsername==-1) endOfUsername=post.length();
-                if(!data.isRegistered(post.substring(0, endOfUsername)))
-                {send(connectionID, new Error(5)); stillValid=false; break;}
+                if(!data.isRegistered(post.substring(0, endOfUsername))) {
+                    indexOfUsername = post.indexOf('@');
+                    continue;
+                }
                 if (!users.contains(data.getIdByUsername(post.substring(0, endOfUsername))))
-                    users.add(data.getIdByUsername(post.substring(0, endOfUsername)));
+                    mentioned.add(data.getIdByUsername(post.substring(0, endOfUsername)));
                 indexOfUsername = post.indexOf('@');
             }
-            if (stillValid) {
-                data.post(connectionID, message.content);
-                send(connectionID, new Ack(5));
-                for (Integer connId : users) {
+            data.post(connectionID, message.content);
+            send(connectionID, new Ack(5));
+            for (Integer connId : users) {
+                send(connId, new Notification(true, data.getUsernameById(connectionID), message.content));
+            }
+            for (Integer connId : mentioned) {
+                if (!(data.isBlockedby(connectionID, data.getUsernameById(connId)) || data.isBlockedby(connId, data.getUsernameById(connectionID))))
                     send(connId, new Notification(true, data.getUsernameById(connectionID), message.content));
-                }
             }
         }
     }
@@ -143,11 +146,11 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
 
     private void processStat(Stat message) {
-        if (!data.isLoggedIn(connectionID))
-            send(connectionID, new Error(7));
+        if (!data.isRegistered(connectionID) || !data.isLoggedIn(connectionID))
+            send(connectionID, new Error(8));
         else {
             for (String s: message.usernames){
-                if (!data.isRegistered(s) | data.isBlockedby(connectionID, s)){
+                if (!data.isRegistered(s) || data.isBlockedby(connectionID, s)| data.isBlockedby(s, connectionID)){
                     send(connectionID, new Error(8));
                     break;
                 }

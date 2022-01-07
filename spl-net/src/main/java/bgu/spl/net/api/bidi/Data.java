@@ -104,7 +104,7 @@ public class Data {
         synchronized (users.get(connectionID)){ myUsername = users.get(connectionID).getUserName();}
         for(Map.Entry<Integer, User> entry: users.getSet())
             synchronized (entry.getValue()) {
-                if (!entry.getValue().getUserName().equals(myUsername) & !entry.getValue().isBlocking(myUsername) & entry.getValue().isLoggedIn())
+                if (!entry.getValue().getUserName().equals(myUsername) & !entry.getValue().isBlocking(myUsername) & entry.getValue().isLoggedIn() & !users.get(connectionID).isBlocking(entry.getValue().getUserName()))
                     ans.add(entry.getValue().getStat());
             }
         return ans;
@@ -137,6 +137,11 @@ public class Data {
         }
         synchronized (users.get(userIDs.get(username))) {
         return users.get(userIDs.get(username)).isBlocking(myUsername); }
+    }
+
+    public boolean isBlockedby(String userName, int connectionID){
+        synchronized (users.get(connectionID)){
+            return users.get(connectionID).isBlocking(userName);    }
     }
 
 
